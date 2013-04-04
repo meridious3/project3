@@ -1,6 +1,6 @@
-var kBoardWidth = 9;
-var kBoardHeight= 9;
-var kNumPieces = 9;
+var kBoardWidth = 8;
+var kBoardHeight= 8;
+var kNumPieces = 5;
 var kPieceWidth = 50;
 var kPieceHeight= 50;
 var kPixelWidth = 1 + (kBoardWidth * kPieceWidth);
@@ -145,7 +145,7 @@ function drawBoard() {
     }
     
     /* draw it! */
-    gDrawingContext.strokeStyle = "#ccc";
+    gDrawingContext.strokeStyle = "rgb(204,204,204)";
     gDrawingContext.stroke();
     
     for (var i = 0; i < 9; i++) {
@@ -166,10 +166,10 @@ function drawPiece(p, selected) {
     gDrawingContext.beginPath();
     gDrawingContext.arc(x, y, radius, 0, Math.PI*2, false);
     gDrawingContext.closePath();
-    gDrawingContext.strokeStyle = "#000";
+    gDrawingContext.strokeStyle = "rgb(0,0,0)";
     gDrawingContext.stroke();
     if (selected) {
-	gDrawingContext.fillStyle = "#000";
+	gDrawingContext.fillStyle = "rgb(150,150,150)";
 	gDrawingContext.fill();
     }
 }
@@ -180,45 +180,50 @@ function supportsLocalStorage() {
 
 function saveGameState() {
     if (!supportsLocalStorage()) { return false; }
-    localStorage["halma.game.in.progress"] = gGameInProgress;
+    localStorage["board.game.in.progress"] = gGameInProgress;
     for (var i = 0; i < kNumPieces; i++) {
-	localStorage["halma.piece." + i + ".row"] = gPieces[i].row;
-	localStorage["halma.piece." + i + ".column"] = gPieces[i].column;
+	localStorage["board.piece." + i + ".row"] = gPieces[i].row;
+	localStorage["board.piece." + i + ".column"] = gPieces[i].column;
     }
-    localStorage["halma.selectedpiece"] = gSelectedPieceIndex;
-    localStorage["halma.selectedpiecehasmoved"] = gSelectedPieceHasMoved;
-    localStorage["halma.movecount"] = gMoveCount;
+    localStorage["board.selectedpiece"] = gSelectedPieceIndex;
+    localStorage["board.selectedpiecehasmoved"] = gSelectedPieceHasMoved;
+    localStorage["board.movecount"] = gMoveCount;
     return true;
 }
 
 function resumeGame() {
     if (!supportsLocalStorage()) { return false; }
-    gGameInProgress = (localStorage["halma.game.in.progress"] == "true");
+    gGameInProgress = (localStorage["board.game.in.progress"] == "true");
     if (!gGameInProgress) { return false; }
     gPieces = new Array(kNumPieces);
     for (var i = 0; i < kNumPieces; i++) {
-	var row = parseInt(localStorage["halma.piece." + i + ".row"]);
-	var column = parseInt(localStorage["halma.piece." + i + ".column"]);
+	var row = parseInt(localStorage["board.piece." + i + ".row"]);
+	var column = parseInt(localStorage["board.piece." + i + ".column"]);
 	gPieces[i] = new Cell(row, column);
     }
     gNumPieces = kNumPieces;
-    gSelectedPieceIndex = parseInt(localStorage["halma.selectedpiece"]);
-    gSelectedPieceHasMoved = localStorage["halma.selectedpiecehasmoved"] == "true";
-    gMoveCount = parseInt(localStorage["halma.movecount"]);
+    gSelectedPieceIndex = parseInt(localStorage["board.selectedpiece"]);
+    gSelectedPieceHasMoved = localStorage["board.selectedpiecehasmoved"] == "true";
+    gMoveCount = parseInt(localStorage["board.movecount"]);
     drawBoard();
     return true;
 }
 
 function newGame() {
-    gPieces = [new Cell(kBoardHeight - 3, 0),
-	       new Cell(kBoardHeight - 2, 0),
-	       new Cell(kBoardHeight - 1, 0),
-	       new Cell(kBoardHeight - 3, 1),
-	       new Cell(kBoardHeight - 2, 1),
-	       new Cell(kBoardHeight - 1, 1),
-	       new Cell(kBoardHeight - 3, 2),
-	       new Cell(kBoardHeight - 2, 2),
-	       new Cell(kBoardHeight - 1, 2)];
+    // gPieces = [new Cell(kBoardHeight - 3, 0),
+	   //     new Cell(kBoardHeight - 2, 0),
+	   //     new Cell(kBoardHeight - 1, 0),
+	   //     new Cell(kBoardHeight - 3, 1),
+	   //     new Cell(kBoardHeight - 2, 1),
+	   //     new Cell(kBoardHeight - 1, 1),
+	   //     new Cell(kBoardHeight - 3, 2),
+	   //     new Cell(kBoardHeight - 2, 2),
+	   //     new Cell(kBoardHeight - 1, 2)];
+
+       gPieces = [new Cell(3, 3),
+           new Cell(3, 4),
+           new Cell(4, 3),
+           new Cell(4, 4)];
     
     gNumPieces = gPieces.length;
     gSelectedPieceIndex = -1;
