@@ -72,7 +72,7 @@
 	<script src="js/board.js"></script>
 </head>
 	<body>
-		<h1>Reversi</h1>
+		<h1>Checkers</h1>
 		<p id="moves">Moves: <span id="movecount"></span></p>
 		<script>initGame(null,document.getElementById('movecount'));</script>
 	</body>

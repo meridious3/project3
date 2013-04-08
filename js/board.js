@@ -34,12 +34,12 @@ function getCursorPosition(e) {
     var x;
     var y;
     if (e.pageX != undefined && e.pageY != undefined) {
-	x = e.pageX;
-	y = e.pageY;
+	   x = e.pageX;
+	   y = e.pageY;
     }
     else {
-	x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-	y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    	x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+    	y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
     }
     x -= gCanvasElement.offsetLeft;
     y -= gCanvasElement.offsetTop;
@@ -117,21 +117,42 @@ function isThereAPieceBetween(cell1, cell2) {
     return false;
 }
 
+// function isTheGameOver() {
+//     for (var i = 0; i < gNumPieces; i++) {
+// 	if (gPieces[i].row > 2) {
+// 	    return false;
+// 	}
+// 	if (gPieces[i].column < (kBoardWidth - 3)) {
+// 	    return false;
+// 	}
+//     }
+//     return true;
+// }
+
 function isTheGameOver() {
-    for (var i = 0; i < gNumPieces; i++) {
-	if (gPieces[i].row > 2) {
-	    return false;
-	}
-	if (gPieces[i].column < (kBoardWidth - 3)) {
-	    return false;
-	}
+    for (var i = 0; i < p1NumPieces; i++) {
+        if (p1Pieces[i].row > 2) {
+            return false;
+        }
+        if (p1Pieces[i].column < (kBoardWidth - 3)) {
+            return false;
+        }
+    }
+
+    for (var i = 0; i < p2NumPieces; i++) {
+        if (p2Pieces[i].row > 2) {
+            return false;
+        }
+        if (p2Pieces[i].column < (kBoardWidth - 3)) {
+            return false;
+        }
     }
     return true;
 }
 
 function drawBoard() {
     if (gGameInProgress && isTheGameOver()) {
-	endGame();
+	   endGame();
     }
 
     gDrawingContext.clearRect(0, 0, kPixelWidth, kPixelHeight);
@@ -140,14 +161,14 @@ function drawBoard() {
     
     /* vertical lines */
     for (var x = 0; x <= kPixelWidth; x += kPieceWidth) {
-	gDrawingContext.moveTo(0.5 + x, 0);
-	gDrawingContext.lineTo(0.5 + x, kPixelHeight);
+	   gDrawingContext.moveTo(0.5 + x, 0);
+	   gDrawingContext.lineTo(0.5 + x, kPixelHeight);
     }
     
     /* horizontal lines */
     for (var y = 0; y <= kPixelHeight; y += kPieceHeight) {
-	gDrawingContext.moveTo(0, 0.5 + y);
-	gDrawingContext.lineTo(kPixelWidth, 0.5 +  y);
+	   gDrawingContext.moveTo(0, 0.5 + y);
+	   gDrawingContext.lineTo(kPixelWidth, 0.5 +  y);
     }
     
     /* draw it! */
@@ -188,7 +209,7 @@ function drawPiece(p, selected) {
     }
 }
 
-function drawP1Piece(p, selected) {
+function drawP1Piece(p,selected) {
     var column = p.column;
     var row = p.row;
     var x = (column * kPieceWidth) + (kPieceWidth/2);
@@ -205,7 +226,7 @@ function drawP1Piece(p, selected) {
     }
 }
 
-function drawP2Piece(p, selected) {
+function drawP2Piece(p,selected) {
     var column = p.column;
     var row = p.row;
     var x = (column * kPieceWidth) + (kPieceWidth/2);
@@ -224,10 +245,10 @@ function drawP2Piece(p, selected) {
 
 if (typeof resumeGame != "function") {
     saveGameState = function() {
-	return false;
+	   return false;
     }
     resumeGame = function() {
-	return false;
+	   return false;
     }
 }
 
@@ -247,12 +268,40 @@ function newGame() {
        //     new Cell(4, 3),
        //     new Cell(4, 4)];
 
-    p1Pieces = [new Cell(3,4),
-                new Cell(4,4)
+    p1Pieces = [new Cell(0,1),
+                new Cell(0,2),
+                new Cell(0,3),
+                new Cell(0,4),
+                new Cell(0,5),
+                new Cell(0,6),
+                new Cell(0,7),
+                new Cell(0,8),
+                new Cell(1,1),
+                new Cell(1,2),
+                new Cell(1,3),
+                new Cell(1,4),
+                new Cell(1,5),
+                new Cell(1,6),
+                new Cell(1,7),
+                new Cell(1,8)
                 ];
 
-    p2Pieces = [new Cell(3,3),
-                new Cell(4,3)
+    p2Pieces = [new Cell(7,1),
+                new Cell(7,2),
+                new Cell(7,3),
+                new Cell(7,4),
+                new Cell(7,5),
+                new Cell(7,6),
+                new Cell(7,7),
+                new Cell(7,8),
+                new Cell(8,1),
+                new Cell(8,2),
+                new Cell(8,3),
+                new Cell(8,4),
+                new Cell(8,5),
+                new Cell(8,6),
+                new Cell(8,7),
+                new Cell(8,8)
                 ];
 
     //gNumPieces = gPieces.length;
@@ -275,7 +324,7 @@ function endGame() {
 function initGame(canvasElement, moveCountElement) {
     if (!canvasElement) {
         canvasElement = document.createElement("canvas");
-	canvasElement.id = "reversi_canvas";
+	canvasElement.id = "checkers_canvas";
 	document.body.appendChild(canvasElement);
     }
     if (!moveCountElement) {
