@@ -9,10 +9,16 @@ var kPixelHeight= 1 + (kBoardHeight * kPieceHeight);
 var gCanvasElement;
 var gDrawingContext;
 var gPattern;
-
 var gPieces;
+var p1Pieces;
+var p2Pieces;
 var gNumPieces;
+var p1NumPieces;
+var p2NumPieces;
 var gSelectedPieceIndex;
+//Have the user click twice to place a piece
+var p1SelectedIndex;
+var p2SelectedIndex;
 var gSelectedPieceHasMoved;
 var gMoveCount;
 var gMoveCountElem;
@@ -148,8 +154,16 @@ function drawBoard() {
     gDrawingContext.strokeStyle = "rgb(204,204,204)";
     gDrawingContext.stroke();
     
-    for (var i = 0; i < 9; i++) {
-	drawPiece(gPieces[i], i == gSelectedPieceIndex);
+    // for (var i = 0; i < 9; i++) {
+       // drawPiece(gPieces[i], i == gSelectedPieceIndex);
+    // }
+
+    for (var i = 0; i < p1NumPieces; i++) {
+       drawP1Piece(p1Pieces[i], i == p1SelectedIndex);
+    }
+
+    for (var i = 0; i < p1NumPieces; i++) {
+       drawP2Piece(p2Pieces[i], i == p2SelectedIndex);
     }
 
     gMoveCountElem.innerHTML = gMoveCount;
@@ -169,8 +183,42 @@ function drawPiece(p, selected) {
     gDrawingContext.strokeStyle = "rgb(0,0,0)";
     gDrawingContext.stroke();
     if (selected) {
-	gDrawingContext.fillStyle = "rgb(150,150,150)";
-	gDrawingContext.fill();
+	   gDrawingContext.fillStyle = "rgb(150,150,150)";
+	   gDrawingContext.fill();
+    }
+}
+
+function drawP1Piece(p, selected) {
+    var column = p.column;
+    var row = p.row;
+    var x = (column * kPieceWidth) + (kPieceWidth/2);
+    var y = (row * kPieceHeight) + (kPieceHeight/2);
+    var radius = (kPieceWidth/2) - (kPieceWidth/10);
+    gDrawingContext.beginPath();
+    gDrawingContext.arc(x, y, radius, 0, Math.PI*2, false);
+    gDrawingContext.closePath();
+    gDrawingContext.strokeStyle = "rgb(0,0,0)";
+    gDrawingContext.stroke();
+    if (selected) {
+        gDrawingContext.fillStyle = "rgb(150,150,150)";
+        gDrawingContext.fill();
+    }
+}
+
+function drawP2Piece(p, selected) {
+    var column = p.column;
+    var row = p.row;
+    var x = (column * kPieceWidth) + (kPieceWidth/2);
+    var y = (row * kPieceHeight) + (kPieceHeight/2);
+    var radius = (kPieceWidth/2) - (kPieceWidth/10);
+    gDrawingContext.beginPath();
+    gDrawingContext.arc(x, y, radius, 0, Math.PI*2, false);
+    gDrawingContext.closePath();
+    gDrawingContext.strokeStyle = "rgb(0,0,0)";
+    gDrawingContext.stroke();
+    if (selected) {
+        gDrawingContext.fillStyle = "rgb(150,150,150)";
+        gDrawingContext.fill();
     }
 }
 
@@ -180,10 +228,14 @@ function supportsLocalStorage() {
 
 function saveGameState() {
     if (!supportsLocalStorage()) { return false; }
-    localStorage["board.game.in.progress"] = gGameInProgress;
+        localStorage["board.game.in.progress"] = gGameInProgress;
     for (var i = 0; i < kNumPieces; i++) {
-	localStorage["board.piece." + i + ".row"] = gPieces[i].row;
-	localStorage["board.piece." + i + ".column"] = gPieces[i].column;
+	   //localStorage["board.piece." + i + ".row"] = gPieces[i].row;
+	   //localStorage["board.piece." + i + ".column"] = gPieces[i].column;
+       localStorage["board.p1Piece." + i + ".row"] = p1Pieces[i].row;
+       localStorage["board.p1Piece." + i + ".column"] = p1Pieces[i].column;
+       localStorage["board.p2Piece." + i + ".row"] = p2Pieces[i].row;
+       localStorage["board.p2Piece." + i + ".column"] = p2Pieces[i].column;
     }
     localStorage["board.selectedpiece"] = gSelectedPieceIndex;
     localStorage["board.selectedpiecehasmoved"] = gSelectedPieceHasMoved;
@@ -193,13 +245,13 @@ function saveGameState() {
 
 function resumeGame() {
     if (!supportsLocalStorage()) { return false; }
-    gGameInProgress = (localStorage["board.game.in.progress"] == "true");
+        gGameInProgress = (localStorage["board.game.in.progress"] == "true");
     if (!gGameInProgress) { return false; }
-    gPieces = new Array(kNumPieces);
+        gPieces = new Array(kNumPieces);
     for (var i = 0; i < kNumPieces; i++) {
-	var row = parseInt(localStorage["board.piece." + i + ".row"]);
-	var column = parseInt(localStorage["board.piece." + i + ".column"]);
-	gPieces[i] = new Cell(row, column);
+	   var row = parseInt(localStorage["board.piece." + i + ".row"]);
+	   var column = parseInt(localStorage["board.piece." + i + ".column"]);
+	   gPieces[i] = new Cell(row, column);
     }
     gNumPieces = kNumPieces;
     gSelectedPieceIndex = parseInt(localStorage["board.selectedpiece"]);
@@ -220,13 +272,25 @@ function newGame() {
 	   //     new Cell(kBoardHeight - 2, 2),
 	   //     new Cell(kBoardHeight - 1, 2)];
 
-       gPieces = [new Cell(3, 3),
-           new Cell(3, 4),
-           new Cell(4, 3),
-           new Cell(4, 4)];
+       // gPieces = [new Cell(3, 3),
+       //     new Cell(3, 4),
+       //     new Cell(4, 3),
+       //     new Cell(4, 4)];
+
+       p1Pieces = [new Cell(3,4),
+                    new Cell(4,4)
+                    ];
+
+        p2Pieces = [new Cell(3,3),
+                    new Cell(4,3)
+                    ];
     
-    gNumPieces = gPieces.length;
+    //gNumPieces = gPieces.length;
+    p1NumPieces = p1Pieces.length;
+    p2NumPieces = p2Pieces.length;
     gSelectedPieceIndex = -1;
+    p1SelectedIndex = -1;
+    p2SelectedIndex = -1;
     gSelectedPieceHasMoved = false;
     gMoveCount = 0;
     gGameInProgress = true;
@@ -235,13 +299,15 @@ function newGame() {
 
 function endGame() {
     gSelectedPieceIndex = -1;
+    p1SelectedIndex = -1;
+    p2SelectedIndex = -1;
     gGameInProgress = false;
 }
 
 function initGame(canvasElement, moveCountElement) {
     if (!canvasElement) {
         canvasElement = document.createElement("canvas");
-	canvasElement.id = "halma_canvas";
+	canvasElement.id = "reversi_canvas";
 	document.body.appendChild(canvasElement);
     }
     if (!moveCountElement) {
