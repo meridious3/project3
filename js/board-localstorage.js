@@ -79,11 +79,11 @@ function clickOnEmptyCell(cell) {
 	(columnDiff <= 1)) {
     	/* we already know that this click was on an empty square,
     	   so that must mean this was a valid single-square move */
-    	p1Pieces[p1SelectedPieceIndex].row = cell.row;
-    	p1Pieces[p1SelectedPieceIndex].column = cell.column;
-    	p1MoveCount += 1;
-    	p1SelectedPieceIndex = -1;
-    	p1SelectedPieceHasMoved = false;
+    	p1Pieces[gSelectedPieceIndex].row = cell.row;
+    	p1Pieces[gSelectedPieceIndex].column = cell.column;
+    	gMoveCount += 1;
+    	gSelectedPieceIndex = -1;
+    	gSelectedPieceHasMoved = false;
     	drawBoard();
     	return;
     }
@@ -107,9 +107,12 @@ function clickOnEmptyCell(cell) {
 }
 
 function clickOnPiece(pieceIndex) {
+    // if (gSelectedPieceIndex == pieceIndex) { return; }
+    // gSelectedPieceIndex = pieceIndex;
+    // gSelectedPieceHasMoved = false;
     if (gSelectedPieceIndex == pieceIndex) { return; }
-    gSelectedPieceIndex = pieceIndex;
-    gSelectedPieceHasMoved = false;
+    p1SelectedPieceIndex = pieceIndex;
+    p1SelectedPieceHasMoved = false;
     drawBoard();
 }
 
@@ -118,11 +121,17 @@ function isThereAPieceBetween(cell1, cell2) {
        either vertically, horizontally, or diagonally */
     var rowBetween = (cell1.row + cell2.row) / 2;
     var columnBetween = (cell1.column + cell2.column) / 2;
-    for (var i = 0; i < gNumPieces; i++) {
-	if ((gPieces[i].row == rowBetween) &&
-	    (gPieces[i].column == columnBetween)) {
-	    return true;
-	}
+    for (var i = 0; i < p1NumPieces; i++) {
+    	if ((p1Pieces[i].row == rowBetween) &&
+    	    (p1Pieces[i].column == columnBetween)) {
+    	    return true;
+    	}
+    }
+    for (var i = 0; i < p2NumPieces; i++) {
+        if ((p2Pieces[i].row == rowBetween) &&
+            (p2Pieces[i].column == columnBetween)) {
+            return true;
+        }
     }
     return false;
 }
@@ -171,8 +180,8 @@ function drawBoard() {
     
     /* vertical lines */
     for (var x = 0; x <= kPixelWidth; x += kPieceWidth) {
-	gDrawingContext.moveTo(0.5 + x, 0);
-	gDrawingContext.lineTo(0.5 + x, kPixelHeight);
+	   gDrawingContext.moveTo(0.5 + x, 0);
+	   gDrawingContext.lineTo(0.5 + x, kPixelHeight);
     }
     
     /* horizontal lines */
@@ -184,8 +193,8 @@ function drawBoard() {
     /* draw it! */
     gDrawingContext.strokeStyle = "rgb(204,204,204)";
     gDrawingContext.stroke();
-    gDrawingContext.fillStyle = "rgb(0,255,0)";
-    gDrawingContext.fill();
+    //gDrawingContext.fillStyle = "rgb(0,255,0)";
+    //gDrawingContext.fill();
     
     // for (var i = 0; i < 9; i++) {
        // drawPiece(gPieces[i], i == gSelectedPieceIndex);
@@ -351,8 +360,8 @@ function newGame() {
     p1NumPieces = p1Pieces.length;
     p2NumPieces = p2Pieces.length;
     gSelectedPieceIndex = -1;
-    p1SelectedIndex = -1;
-    p2SelectedIndex = -1;
+    p1SelectedPieceIndex = -1;
+    p2SelectedPieceIndex = -1;
     gSelectedPieceHasMoved = false;
     gMoveCount = 0;
     gGameInProgress = true;

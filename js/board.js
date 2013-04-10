@@ -74,8 +74,8 @@ function halmaOnClick(e) {
 
 function clickOnEmptyCell(cell) {
     if (p1SelectedPieceIndex == -1) { return; }
-    var rowDiff = Math.abs(cell.row - p1Pieces[p1SelectedPieceIndex].row);
-    var columnDiff = Math.abs(cell.column - p1Pieces[p1SelectedPieceIndex].column);
+    var rowDiff = Math.abs(cell.row - p1Pieces[gSelectedPieceIndex].row);
+    var columnDiff = Math.abs(cell.column - gPieces[p1SelectedPieceIndex].column);
     if ((rowDiff <= 1) &&
 	(columnDiff <= 1)) {
 	/* we already know that this click was on an empty square,
@@ -119,11 +119,17 @@ function isThereAPieceBetween(cell1, cell2) {
        either vertically, horizontally, or diagonally */
     var rowBetween = (cell1.row + cell2.row) / 2;
     var columnBetween = (cell1.column + cell2.column) / 2;
-    for (var i = 0; i < gNumPieces; i++) {
-	if ((gPieces[i].row == rowBetween) &&
-	    (gPieces[i].column == columnBetween)) {
-	    return true;
-	}
+    for (var i = 0; i < p1NumPieces; i++) {
+        if ((p1Pieces[i].row == rowBetween) &&
+            (p1Pieces[i].column == columnBetween)) {
+            return true;
+        }
+    }
+    for (var i = 0; i < p2NumPieces; i++) {
+        if ((p2Pieces[i].row == rowBetween) &&
+            (p2Pieces[i].column == columnBetween)) {
+            return true;
+        }
     }
     return false;
 }
@@ -185,19 +191,21 @@ function drawBoard() {
     /* draw it! */
     gDrawingContext.strokeStyle = "rgb(204,204,204)";
     gDrawingContext.stroke();
-    gDrawingContext.fillStyle = "rgb(0,255,0)";
-    gDrawingContext.fill();
+    //gDrawingContext.fillStyle = "rgb(0,255,0)";
+    //gDrawingContext.fill();
     
     // for (var i = 0; i < 9; i++) {
 	   // drawPiece(gPieces[i], i == gSelectedPieceIndex);
     // }
 
     for (var i = 0; i < 12; i++) {
-       drawP1Piece(p1Pieces[i], i == p1SelectedPieceIndex);
+       // drawP1Piece(p1Pieces[i], i == p1SelectedPieceIndex);
+       drawP1Piece(p1Pieces[i], i == gSelectedPieceIndex);
     }
 
     for (var i = 0; i < 12; i++) {
-       drawP2Piece(p2Pieces[i], i == p2SelectedPieceIndex);
+       // drawP2Piece(p2Pieces[i], i == p2SelectedPieceIndex);
+       drawP2Piece(p2Pieces[i], i == gSelectedPieceIndex);
     }
 
     gMoveCountElem.innerHTML = gMoveCount;
@@ -317,8 +325,8 @@ function newGame() {
     p1NumPieces = p1Pieces.length;
     p2NumPieces = p2Pieces.length;
     gSelectedPieceIndex = -1;
-    p1SelectedPieceIndex = -1;
-    p2SelectedPieceIndex = -1;
+    //p1SelectedPieceIndex = -1;
+    //p2SelectedPieceIndex = -1;
     gSelectedPieceHasMoved = false;
     gMoveCount = 0;
     gGameInProgress = true;
@@ -327,8 +335,8 @@ function newGame() {
 
 function endGame() {
     gSelectedPieceIndex = -1;
-    p1SelectedPieceIndex = -1;
-    p2SelectedPieceIndex = -1;
+    //p1SelectedPieceIndex = -1;
+    //p2SelectedPieceIndex = -1;
     gGameInProgress = false;
 }
 
