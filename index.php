@@ -10,6 +10,7 @@
   $config = array(
     'appId'  => '627872940559966',
     'secret' => 'b60c9ec277821046d62e733ff692f14f',
+    'cookie' => true
   );
 
   $facebook = new Facebook($config);
@@ -124,7 +125,7 @@
 
             // CHANGE ME BETWEEN HOSTS
 
-            echo "<a href=".$facebook->getLogoutUrl( array('next' => 'http://localhost/WebDev/Project3') ).">Log out</a>";
+            echo "<a href="."./logout.php".">Log out</a>";
 
         } catch(FacebookApiException $e) {
             // If the user is logged out, you can have a 
