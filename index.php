@@ -74,15 +74,41 @@
 
 </head>
 	<body>
-		<h1>English Draughts</h1>
-		<p id="moves">Moves: <span id="movecount"></span></p>
-		<script>initGame(null,document.getElementById('movecount'));</script>
+        <br />
+		<h1>Ye Olde English Draughts</h1>
+		<!-- <p id="moves">Moves: <span id="movecount"></span></p> -->
+        <div id="border" >
+	       <script>initGame(null,document.getElementById('movecount'));</script>
+        </div>
+        <div id="stats">
+
+        <div>
 	</body>
     <style>
+        /**/
+        #border {
+            width:  400px;
+            /*height: 450px;*/
+            margin: 0px auto;
+        }
+
+        /*Style goes at bottom so the background is applied */
         #checkers_canvas {
             background-image:url('img/checkerboard.jpg');
             background-size: cover;
-            
+            margin: auto auto;
+            border-style: solid;
+            border-width: 10px;
+        }
+
+        body {
+            background-image:url("img/background.jpg");
+            background-size: 100%;
+        }
+
+        h1 {
+            font-family: "Palatino";
+            font-size: 48px;
         }
 
     </style>

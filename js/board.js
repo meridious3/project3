@@ -345,12 +345,13 @@ function initGame(canvasElement, moveCountElement) {
     if (!canvasElement) {
         canvasElement = document.createElement("canvas");
     	canvasElement.id = "checkers_canvas";
-    	document.body.appendChild(canvasElement);
+        div = document.getElementById("border");
+    	div.appendChild(canvasElement);
     }
-    if (!moveCountElement) {
-        moveCountElement = document.createElement("p");
-	document.body.appendChild(moveCountElement);
-    }
+    // if (!moveCountElement) {
+    //     moveCountElement = document.createElement("p");
+	//     document.body.appendChild(moveCountElement);
+    // }
     gCanvasElement = canvasElement;
     gCanvasElement.width = kPixelWidth;
     gCanvasElement.height = kPixelHeight;
