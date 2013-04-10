@@ -24,6 +24,8 @@ var p2SelectedPieceIndex;
 var gSelectedPieceHasMoved;
 var p1SelectedPieceHasMoved;
 var p2SelectedPieceHasMoved;
+var rowDiff;
+var columnDiff;
 var gMoveCount;
 var gMoveCountElem;
 var gGameInProgress;
@@ -78,12 +80,12 @@ function chipOnClick(e) {
 }
 
 function clickOnEmptyCell(cell, selectedTeam) {
-    if (gSelectedPieceIndex == -1) { return; }
-    if(selectedTeam == null || selectedTeam == 2) { return; }
+    if (gSelectedPieceIndex == -1) { alert("gSPI: " + gSelectedPieceIndex); return; }
+    if(selectedTeam == null || selectedTeam == 2) { alert(selectedTeam); return; }
     //Math.abs --> Math.floor --> (null)
     if(selectedTeam == 0) {
-        var rowDiff = (cell.row - p1Pieces[gSelectedPieceIndex].row);
-        var columnDiff = (cell.column - p1Pieces[gSelectedPieceIndex].column);
+        rowDiff = Math.ceil(cell.row - p1Pieces[gSelectedPieceIndex].row);
+        columnDiff = Math.ceil(cell.column - p1Pieces[gSelectedPieceIndex].column);
         // if ((rowDiff == -1) &&
         // (columnDiff == 1 || columnDiff == -1)) {
         //     /* we already know that this click was on an empty square,
@@ -96,7 +98,7 @@ function clickOnEmptyCell(cell, selectedTeam) {
         //     drawBoard();
         //     return;
         // }
-        if (((rowDiff == -1) && (columnDiff == 1 || columnDiff == -1))
+        if (((rowDiff == 1) && (columnDiff == 1 || columnDiff == -1))
         && 
         isThereAPieceBetween(p1Pieces[gSelectedPieceIndex], cell)) {
             /* this was a valid jump */
@@ -112,8 +114,8 @@ function clickOnEmptyCell(cell, selectedTeam) {
         }
     }
     if(selectedTeam == 1) {
-        var rowDiff = (cell.row - p2Pieces[gSelectedPieceIndex].row);
-        var columnDiff = (cell.column - p2Pieces[gSelectedPieceIndex].column);
+        rowDiff = Math.round(cell.row - p2Pieces[gSelectedPieceIndex].row);
+        columnDiff = Math.round(cell.column - p2Pieces[gSelectedPieceIndex].column);
         //Douglas, not needed since we only need to check for diagonal movement along with a jump
         // if ((rowDiff == 1) &&
         // (columnDiff == 1 || columnDiff == -1)) {
@@ -127,7 +129,7 @@ function clickOnEmptyCell(cell, selectedTeam) {
         //     drawBoard();
         //     return;
         // }
-        if (((rowDiff == 1) && (columnDiff == 1 || columnDiff == -1))
+        if (((rowDiff == -1) && (columnDiff == 1 || columnDiff == -1))
         && 
         isThereAPieceBetween(p2Pieces[gSelectedPieceIndex], cell)) {
             /* this was a valid jump */
@@ -143,8 +145,8 @@ function clickOnEmptyCell(cell, selectedTeam) {
         }
     }
     //resetting the selected team
-    selectedTeam = null;
-    gSelectedPieceIndex = -1;
+    //selectedTeam = null;
+    gSelectedPieceIndex = null;
     gSelectedPieceHasMoved = false;
     drawBoard();
 }
@@ -287,7 +289,7 @@ function drawP1Piece(p,selected,team) {
     gDrawingContext.stroke();
     gDrawingContext.fillStyle = "rgb(255,0,0)";
     if (selected) {
-        gDrawingContext.fillStyle = "rgb(150,150,150)";
+        gDrawingContext.fillStyle = "rgb(255,255,51)";
         gDrawingContext.fill();
     }
 }
@@ -307,7 +309,7 @@ function drawP2Piece(p,selected,team) {
     gDrawingContext.fillStyle = "rgb(230,230,230)";
     gDrawingContext.fill();
     if (selected) {
-        gDrawingContext.fillStyle = "rgb(150,150,150)";
+        gDrawingContext.fillStyle = "rgb(255,255,51)";
         gDrawingContext.fill();
     }
 }

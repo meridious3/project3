@@ -75,6 +75,7 @@
 	<body>
 		<h1>English Draughts</h1>
 		<p id="moves">Moves: <span id="movecount"></span></p>
+        <!-- <button id="Reset" onClick="localStorage.clear();return true;">Reset</button> -->
 		<script>initGame(null,document.getElementById('movecount'));</script>
 	</body>
 </html>
