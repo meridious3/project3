@@ -88,31 +88,6 @@ function clickOnEmptyCell(cell, selectedTeam) {
     if(selectedTeam == 0) {
         rowDiff = Math.ceil(cell.row - p1Pieces[gSelectedPieceIndex].row);
         columnDiff = Math.ceil(cell.column - p1Pieces[gSelectedPieceIndex].column);
-        // if ((rowDiff == -1) &&
-        // (columnDiff == 1 || columnDiff == -1)) {
-        //     /* we already know that this click was on an empty square,
-        //        so that must mean this was a valid single-square move */
-        //     p1Pieces[gSelectedPieceIndex].row = cell.row;
-        //     p1Pieces[gSelectedPieceIndex].column = cell.column;
-        //     gMoveCount += 1;
-        //     gSelectedPieceIndex = -1;
-        //     gSelectedPieceHasMoved = false;
-        //     drawBoard();
-        //     return;
-        // }
-        // if (((rowDiff == 1) && (columnDiff == 1 || columnDiff == -1)) && 
-        // isThereAPieceBetween(p1Pieces[gSelectedPieceIndex], cell)) {
-        //     /* this was a valid jump */
-        //     if (!gSelectedPieceHasMoved) {
-        //         gMoveCount += 1;
-        //     }
-        //     gSelectedPieceHasMoved = true;
-        //     p1Pieces[gSelectedPieceIndex].row = cell.row;
-        //     p1Pieces[gSelectedPieceIndex].column = cell.column;
-        //     selectedTeam = null;
-        //     drawBoard();
-        //     return;
-        // }
 
         if ((rowDiff == 1) && (columnDiff == 1 || columnDiff == -1)) {
             /* this was a valid jump */
@@ -152,33 +127,6 @@ function clickOnEmptyCell(cell, selectedTeam) {
     if(selectedTeam == 1) {
         rowDiff = Math.ceil(cell.row - p2Pieces[gSelectedPieceIndex].row);
         columnDiff = Math.ceil(cell.column - p2Pieces[gSelectedPieceIndex].column);
-        //Douglas, not needed since we only need to check for diagonal movement along with a jump
-        // if ((rowDiff == 1) &&
-        // (columnDiff == 1 || columnDiff == -1)) {
-        //     /* we already know that this click was on an empty square,
-        //        so that must mean this was a valid single-square move */
-        //     p2Pieces[gSelectedPieceIndex].row = cell.row;
-        //     p2Pieces[gSelectedPieceIndex].column = cell.column;
-        //     gMoveCount += 1;
-        //     gSelectedPieceIndex = -1;
-        //     gSelectedPieceHasMoved = false;
-        //     drawBoard();
-        //     return;
-        // }
-        // if (((rowDiff == -1) && (columnDiff == 1 || columnDiff == -1))
-        // && 
-        // isThereAPieceBetween(p2Pieces[gSelectedPieceIndex], cell)) {
-        //     /* this was a valid jump */
-        //     if (!gSelectedPieceHasMoved) {
-        //         gMoveCount += 1;
-        //     }
-        //     gSelectedPieceHasMoved = true;
-        //     p2Pieces[gSelectedPieceIndex].row = cell.row;
-        //     p2Pieces[gSelectedPieceIndex].column = cell.column;
-        //     selectedTeam = null;
-        //     drawBoard();
-        //     return;
-        // }
 
         if ((rowDiff == -1) && (columnDiff == 1 || columnDiff == -1)) {
             /* this was a valid jump */
@@ -235,25 +183,25 @@ function clickOnPiece(pieceIndex, team) {
     drawBoard();
 }
 
-function isThereAPieceBetween(cell1, cell2) {
-    /* note: assumes cell1 and cell2 are 2 squares away
-       either vertically, horizontally, or diagonally */
-    var rowBetween = (cell1.row + cell2.row) / 2;
-    var columnBetween = (cell1.column + cell2.column) / 2;
-    for (var i = 0; i < p1NumPieces; i++) {
-    	if ((p1Pieces[i].row == rowBetween) &&
-    	    (p1Pieces[i].column == columnBetween)) {
-    	    return true;
-    	}
-    }
-    for (var i = 0; i < p2NumPieces; i++) {
-        if ((p2Pieces[i].row == rowBetween) &&
-            (p2Pieces[i].column == columnBetween)) {
-            return true;
-        }
-    }
-    return false;
-}
+// function isThereAPieceBetween(cell1, cell2) {
+//     /* note: assumes cell1 and cell2 are 2 squares away
+//        either vertically, horizontally, or diagonally */
+//     var rowBetween = (cell1.row + cell2.row) / 2;
+//     var columnBetween = (cell1.column + cell2.column) / 2;
+//     for (var i = 0; i < p1NumPieces; i++) {
+//     	if ((p1Pieces[i].row == rowBetween) &&
+//     	    (p1Pieces[i].column == columnBetween)) {
+//     	    return true;
+//     	}
+//     }
+//     for (var i = 0; i < p2NumPieces; i++) {
+//         if ((p2Pieces[i].row == rowBetween) &&
+//             (p2Pieces[i].column == columnBetween)) {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
 
 function pieceHop(pCell, cell, selectedTeam) {
     if(selectedTeam == 0) {
@@ -279,37 +227,7 @@ function pieceHop(pCell, cell, selectedTeam) {
     return false;
 }
 
-
-// function isTheGameOver() {
-//     for (var i = 0; i < gNumPieces; i++) {
-//     	if (gPieces[i].row > 2) {
-//     	    return false;
-//     	}
-//     	if (gPieces[i].column < (kBoardWidth - 3)) {
-//     	    return false;
-//     	}
-//     }
-//     return true;
-// }
-
 function isTheGameOver() {
-    // for (var i = 0; i < p1NumPieces; i++) {
-    //     if (p1Pieces[i].row > 2) {
-    //         return false;
-    //     }
-    //     if (p1Pieces[i].column < (kBoardWidth - 3)) {
-    //         return false;
-    //     }
-    // }
-
-    // for (var i = 0; i < p2NumPieces; i++) {
-    //     if (p2Pieces[i].row > 2) {
-    //         return false;
-    //     }
-    //     if (p2Pieces[i].column < (kBoardWidth - 3)) {
-    //         return false;
-    //     }
-    // }
 
     if(p1NumPieces!=0) {
         return false;
@@ -358,7 +276,7 @@ function drawBoard() {
        // drawP1Piece(p1Pieces[i], selectedTeam, 0);
     }
     p1SelectedPieceIndex = null;
-    gSelectedPieceIndex = -1;
+    //gSelectedPieceIndex = -1;
 
     for (var i = 0; i < p2NumPieces; i++) {
        // drawP2Piece(p2Pieces[i], i == gSelectedPieceIndex);
@@ -366,7 +284,7 @@ function drawBoard() {
        // drawP2Piece(p2Pieces[i], selectedTeam, 1);
     }
     p2SelectedPieceIndex = null;
-    gSelectedPieceIndex = -1;
+    //gSelectedPieceIndex = -1;
 
     gMoveCountElem.innerHTML = gMoveCount;
 
@@ -492,6 +410,34 @@ function newGame() {
                     new Cell(7,4,1),
                     new Cell(7,6,1)
                     ];
+
+    // p1Pieces = [new Cell('row':0,'column':1,'team':0),
+    //             new Cell('row':0,'column':3,'team':0),
+    //             new Cell('row':0,'column':5,'team':0),
+    //             new Cell('row':0,'column':7,'team':0),
+    //             new Cell('row':1,'column':0,'team':0),
+    //             new Cell('row':1,'column':2,'team':0),
+    //             new Cell('row':1,'column':4,'team':0),
+    //             new Cell('row':1,'column':6,'team':0),
+    //             new Cell('row':2,'column':1,'team':0),
+    //             new Cell('row':2,'column':3,'team':0),
+    //             new Cell('row':2,'column':5,'team':0),
+    //             new Cell('row':2,'column':7,'team':0)
+    //             ];
+
+    // p2Pieces = [new Cell('row':5,'column':0,'team':1),
+    //             new Cell('row':5,'column':2,'team':1),
+    //             new Cell('row':5,'column':4,'team':1),
+    //             new Cell('row':5,'column':6,'team':1),
+    //             new Cell('row':6,'column':1,'team':1),
+    //             new Cell('row':6,'column':3,'team':1),
+    //             new Cell('row':6,'column':5,'team':1),
+    //             new Cell('row':6,'column':7,'team':1),
+    //             new Cell('row':7,'column':0,'team':1),
+    //             new Cell('row':7,'column':2,'team':1),
+    //             new Cell('row':7,'column':4,'team':1),
+    //             new Cell('row':7,'column':6,'team':1)
+    //             ];
     
     //gNumPieces = gPieces.length;
     p1NumPieces = p1Pieces.length;
@@ -510,6 +456,12 @@ function endGame() {
     p1SelectedIndex = -1;
     p2SelectedIndex = -1;
     gGameInProgress = false;
+    if(p1NumPieces==0) {
+        alert("Player 2 has won!");
+    }
+    if(p2NumPieces==0) {
+        alert("Player 1 has won!");
+    }
 }
 
 function initGame(canvasElement, moveCountElement) {
