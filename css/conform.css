@@ -8,10 +8,13 @@ html {
 }
 
 body {
-	margin:auto auto;
+	
+	margin: 0px auto;
+	text-align: center;
 }
 
+
 #checkers_canvas {
-	/*background-image:url('');*/
-	/*background-size:cover;*/
+	background-image:url('');
+	background-size:cover;
 }
