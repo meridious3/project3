@@ -28,6 +28,8 @@ var p1SelectedPieceHasMoved;
 var p2SelectedPieceHasMoved;
 var rowDiff;
 var columnDiff;
+var rRow; // remove row at value
+var rColumn // remove column at value
 var gMoveCount;
 var gMoveCountElem;
 var gGameInProgress;
@@ -104,8 +106,21 @@ function clickOnEmptyCell(cell, selectedTeam) {
         //     drawBoard();
         //     return;
         // }
-        if (((rowDiff == 1) && (columnDiff == 1 || columnDiff == -1)) && 
-        isThereAPieceBetween(p1Pieces[gSelectedPieceIndex], cell)) {
+        // if (((rowDiff == 1) && (columnDiff == 1 || columnDiff == -1)) && 
+        // isThereAPieceBetween(p1Pieces[gSelectedPieceIndex], cell)) {
+        //     /* this was a valid jump */
+        //     if (!gSelectedPieceHasMoved) {
+        //         gMoveCount += 1;
+        //     }
+        //     gSelectedPieceHasMoved = true;
+        //     p1Pieces[gSelectedPieceIndex].row = cell.row;
+        //     p1Pieces[gSelectedPieceIndex].column = cell.column;
+        //     selectedTeam = null;
+        //     drawBoard();
+        //     return;
+        // }
+
+        if ((rowDiff == 1) && (columnDiff == 1 || columnDiff == -1)) {
             /* this was a valid jump */
             if (!gSelectedPieceHasMoved) {
                 gMoveCount += 1;
@@ -113,6 +128,28 @@ function clickOnEmptyCell(cell, selectedTeam) {
             gSelectedPieceHasMoved = true;
             p1Pieces[gSelectedPieceIndex].row = cell.row;
             p1Pieces[gSelectedPieceIndex].column = cell.column;
+            selectedTeam = null;
+            drawBoard();
+            return;
+        }
+
+        if (((rowDiff == 2) && (columnDiff == 2 || columnDiff == -2)) 
+        && 
+        pieceHop(p1Pieces[gSelectedPieceIndex], cell, selectedTeam)) {
+            /* this was a valid jump */
+            if (!gSelectedPieceHasMoved) {
+                gMoveCount += 1;
+            }
+            gSelectedPieceHasMoved = true;
+            p1Pieces[gSelectedPieceIndex].row = cell.row;
+            p1Pieces[gSelectedPieceIndex].column = cell.column;
+            rRow = cell.row - 1;
+            rColumn = cell.column - 1;
+            for(var i = 0; i < p2NumPieces; i++) {
+                if((p2Pieces[i].row == rRow) && (p2Pieces[i].column == rColumn)) {
+                    p2Pieces.splice(i,1);
+                }
+            }
             selectedTeam = null;
             drawBoard();
             return;
@@ -134,9 +171,44 @@ function clickOnEmptyCell(cell, selectedTeam) {
         //     drawBoard();
         //     return;
         // }
-        if (((rowDiff == -1) && (columnDiff == 1 || columnDiff == -1))
+        // if (((rowDiff == -1) && (columnDiff == 1 || columnDiff == -1))
+        // && 
+        // isThereAPieceBetween(p2Pieces[gSelectedPieceIndex], cell)) {
+        //     /* this was a valid jump */
+        //     if (!gSelectedPieceHasMoved) {
+        //         gMoveCount += 1;
+        //     }
+        //     gSelectedPieceHasMoved = true;
+        //     p2Pieces[gSelectedPieceIndex].row = cell.row;
+        //     p2Pieces[gSelectedPieceIndex].column = cell.column;
+        //     selectedTeam = null;
+        //     drawBoard();
+        //     return;
+        // }
+
+        if ((rowDiff == -1) && (columnDiff == 1 || columnDiff == -1)) {
+            /* this was a valid jump */
+            if (!gSelectedPieceHasMoved) {
+                gMoveCount += 1;
+            }
+            gSelectedPieceHasMoved = true;
+            p2Pieces[gSelectedPieceIndex].row = cell.row;
+            p2Pieces[gSelectedPieceIndex].column = cell.column;
+            rRow = cell.row - 1;
+            rColumn = cell.column - 1;
+            for(var i = 0; i < p1NumPieces; i++) {
+                if((p1Pieces[i].row == rRow) && (p1Pieces[i].column == rColumn)) {
+                    p1Pieces.splice(i,1);
+                }
+            }
+            selectedTeam = null;
+            drawBoard();
+            return;
+        }
+
+        if (((rowDiff == -2) && (columnDiff == 2 || columnDiff == -2))
         && 
-        isThereAPieceBetween(p2Pieces[gSelectedPieceIndex], cell)) {
+        pieceHop(p2Pieces[gSelectedPieceIndex], cell, selectedTeam)) {
             /* this was a valid jump */
             if (!gSelectedPieceHasMoved) {
                 gMoveCount += 1;
@@ -151,7 +223,7 @@ function clickOnEmptyCell(cell, selectedTeam) {
     }
     //resetting the selected team
     //selectedTeam = null;
-    gSelectedPieceIndex = null;
+    //gSelectedPieceIndex = null;
     gSelectedPieceHasMoved = false;
     drawBoard();
 }
@@ -192,8 +264,32 @@ function isThereAPieceBetween(cell1, cell2) {
 
 
 
-function chipHop(cell1, cell2) {
-
+function pieceHop(pCell, cell, selectedTeam) {
+    if(selectedTeam == 0) {
+        for(var i = 0; i<p2NumPieces; i++) {
+            if((cell.row == (p2Pieces[i].row+1)) && ((cell.column == (p2Pieces[i].column+1)) || (cell.column == (p2Pieces[i].column-1)))) {
+                p2Pieces.splice(i,1);
+                p2NumPieces -= 1;
+                kNumPieces -= 1;
+                //p1Pieces[i].row = cell.row;
+                //p1Pieces[i].column = cell.column;
+                return true;
+            }
+        }
+    }
+    if(selectedTeam == 1) {
+        for(var i = 0; i<p1NumPieces; i++) {
+            if((cell.row == (p1Pieces[i].row-1)) && ((cell.column == (p1Pieces[i].column+1)) || (cell.column == (p1Pieces[i].column-1)))) {
+                p1Pieces.splice(i,1);
+                p1NumPieces -= 1;
+                kNumPieces -= 1;
+                //p1Pieces[i].row = cell.row;
+                //p1Pieces[i].column = cell.column;
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 // function isTheGameOver() {
@@ -269,7 +365,7 @@ function drawBoard() {
 	   // drawPiece(gPieces[i], i == gSelectedPieceIndex);
     // }
 
-    for (var i = 0; i < 12; i++) {
+    for (var i = 0; i < p1NumPieces; i++) {
        // drawP1Piece(p1Pieces[i], i == gSelectedPieceIndex);
        drawP1Piece(p1Pieces[i], i == p1SelectedPieceIndex, 0);
        // drawP1Piece(p1Pieces[i], selectedTeam, 0);
@@ -277,7 +373,7 @@ function drawBoard() {
     //reset p1SelectedPieceIndex;
     p1SelectedPieceIndex = null;
 
-    for (var i = 0; i < 12; i++) {
+    for (var i = 0; i < p2NumPieces; i++) {
        // drawP2Piece(p2Pieces[i], i == gSelectedPieceIndex);
        drawP2Piece(p2Pieces[i], i == p2SelectedPieceIndex, 1);
        //drawP2Piece(p2Pieces[i], selectedTeam, 1);
