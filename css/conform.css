@@ -10,3 +10,8 @@ html {
 body {
 	margin:auto auto;
 }
+
+#checkers_canvas {
+	background-image:url('');
+	background-size:cover;
+}
