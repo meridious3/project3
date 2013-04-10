@@ -1,5 +1,5 @@
 
-<!-- facebook app configurations. Will vary based on app profile and development path -->
+<!-- Initial help from http://diveintohtml5.info/canvas.html, but the majority has changed -->
 <?
   // Remember to copy files from the SDK's src/ directory to a
   // directory in your application on the server, such as php-sdk/
@@ -8,8 +8,8 @@
     // CHANGE ME BETWEEN HOSTS
 
   $config = array(
-    'appId'  => '627872940559966',
-    'secret' => 'b60c9ec277821046d62e733ff692f14f',
+    'appId'  => '560482677326050',
+    'secret' => '2f5d4d0449a68fd43034b93a4a5c1004'
   );
 
   $facebook = new Facebook($config);
@@ -109,7 +109,7 @@
         <div id="border" >
            <script>initGame(null,document.getElementById('movecount'));</script>
         </div>
-        <div id="stats">
+        <!-- <div id="stats">
         <?php
 
         if($user_id) {
@@ -124,7 +124,8 @@
 
             // CHANGE ME BETWEEN HOSTS
 
-            echo "<a href=".$facebook->getLogoutUrl( array('next' => 'http://localhost/WebDev/Project3') ).">Log out</a>";
+            echo "<a href="."./logout.php".">Log out</a>";
+            //echo "<button onClick='".$facebook."logout(function(response))'</button>";
 
         } catch(FacebookApiException $e) {
             // If the user is logged out, you can have a 
@@ -142,11 +143,10 @@
           print 'Please <a href="' . $login_url . '">login.</a>';
         }    
         ?>            
-        </div>
+        </div> -->
     </body>
-    <style>
-        /**/
-        #border {
+  <style>
+  #border {
             width:  400px;
                         
             margin: 0px auto;
@@ -186,6 +186,5 @@
             top: 150px;            
             right: 130px;
         }
-
-    </style>
+        </style>
 </html>

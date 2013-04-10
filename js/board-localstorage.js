@@ -43,12 +43,12 @@ function getCursorPosition(e) {
     var x;
     var y;
     if (e.pageX != undefined && e.pageY != undefined) {
-	   x = e.pageX;
-	   y = e.pageY;
+       x = e.pageX;
+       y = e.pageY;
     }
     else {
-	   x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-	   y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+       x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+       y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
     }
     x -= gCanvasElement.offsetLeft;
     y -= gCanvasElement.offsetTop;
@@ -62,12 +62,12 @@ function getCursorPosition(e) {
 function chipOnClick(e) {
     var cell = getCursorPosition(e);
     for (var i = 0; i < p1NumPieces; i++) {
-    	if ((p1Pieces[i].row == cell.row) && 
-    	    (p1Pieces[i].column == cell.column)) {
+        if ((p1Pieces[i].row == cell.row) && 
+            (p1Pieces[i].column == cell.column)) {
             selectedTeam = 0;
-    	    clickOnPiece(i,selectedTeam);
-    	    return;
-    	}
+            clickOnPiece(i,selectedTeam);
+            return;
+        }
     }
 
     for (var i = 0; i < p2NumPieces; i++) {
@@ -82,8 +82,8 @@ function chipOnClick(e) {
 }
 
 function clickOnEmptyCell(cell, selectedTeam) {
-    if (gSelectedPieceIndex == -1) { alert("gSPI: " + gSelectedPieceIndex); return; }
-    if(selectedTeam == null || selectedTeam == 2) { alert(selectedTeam); return; }
+    if (gSelectedPieceIndex == -1) { return; }
+    if(selectedTeam == null || selectedTeam == 2) { return; }
     //Math.abs --> Math.floor --> (null)
     if(selectedTeam == 0) {
         rowDiff = Math.ceil(cell.row - p1Pieces[gSelectedPieceIndex].row);
@@ -102,9 +102,7 @@ function clickOnEmptyCell(cell, selectedTeam) {
             return;
         }
 
-        if (((rowDiff == 2) && (columnDiff == 2 || columnDiff == -2)) 
-        && 
-        pieceHop(p1Pieces[gSelectedPieceIndex], cell, selectedTeam)) {
+        if (((rowDiff == 2) && (columnDiff == 2 || columnDiff == -2)) && pieceHop(p1Pieces[gSelectedPieceIndex], cell, selectedTeam)) {
             /* this was a valid jump */
             if (!gSelectedPieceHasMoved) {
                 gMoveCount += 1;
@@ -113,7 +111,8 @@ function clickOnEmptyCell(cell, selectedTeam) {
             p1Pieces[gSelectedPieceIndex].row = cell.row;
             p1Pieces[gSelectedPieceIndex].column = cell.column;
             rRow = cell.row - 1;
-            rColumn = cell.column - 1;
+            //rColumn = (p2Pieces[gSelectedPieceIndex].column + cell.column)/2;
+            rColumn = cell.column - (columnDiff/2);
             for(var i = 0; i < p2NumPieces; i++) {
                 if((p2Pieces[i].row == rRow) && (p2Pieces[i].column == rColumn)) {
                     p2Pieces.splice(i,1);
@@ -141,27 +140,26 @@ function clickOnEmptyCell(cell, selectedTeam) {
             return;
         }
 
-        if (((rowDiff == -2) && (columnDiff == 2 || columnDiff == -2))
-        && 
-        pieceHop(p2Pieces[gSelectedPieceIndex], cell, selectedTeam, iteration)) {
+        if (((rowDiff == -2) && (columnDiff == 2 || columnDiff == -2)) && pieceHop(p2Pieces[gSelectedPieceIndex], cell, selectedTeam)) {
             /* this was a valid jump */
             if (!gSelectedPieceHasMoved) {
                 gMoveCount += 1;
             }
-            gSelectedPieceHasMoved = true;
             p2Pieces[gSelectedPieceIndex].row = cell.row;
             p2Pieces[gSelectedPieceIndex].column = cell.column;
-            rRow = cell.row - 1;
-            rColumn = cell.column - 1;
+            gSelectedPieceHasMoved = true;
+            rRow = cell.row + 1;
+            //rColumn = (p2Pieces[gSelectedPieceIndex].column + cell.column)/2;
+            rColumn = cell.column - (columnDiff/2);
             for(var i = 0; i < p1NumPieces; i++) {
                 if((p1Pieces[i].row == rRow) && (p1Pieces[i].column == rColumn)) {
                     p1Pieces.splice(i,1);
                 }
             }
-            selectedTeam = null;
-            drawBoard();
-            return;
         }
+        selectedTeam = null;
+        drawBoard();
+        return;
     }
     //resetting the selected team
     //selectedTeam = null;
@@ -189,10 +187,10 @@ function clickOnPiece(pieceIndex, team) {
 //     var rowBetween = (cell1.row + cell2.row) / 2;
 //     var columnBetween = (cell1.column + cell2.column) / 2;
 //     for (var i = 0; i < p1NumPieces; i++) {
-//     	if ((p1Pieces[i].row == rowBetween) &&
-//     	    (p1Pieces[i].column == columnBetween)) {
-//     	    return true;
-//     	}
+//      if ((p1Pieces[i].row == rowBetween) &&
+//          (p1Pieces[i].column == columnBetween)) {
+//          return true;
+//      }
 //     }
 //     for (var i = 0; i < p2NumPieces; i++) {
 //         if ((p2Pieces[i].row == rowBetween) &&
@@ -203,26 +201,28 @@ function clickOnPiece(pieceIndex, team) {
 //     return false;
 // }
 
-function pieceHop(pCell, cell, selectedTeam) {
+function pieceHop(pCell, rowDiff, columnDiff, selectedTeam) {
     if(selectedTeam == 0) {
-        if((cell.row == (pCell.row+1)) && ((cell.column == (pCell.column+1)) || (cell.column == (pCell.column-1)))) {
+        // if((cell.row == (pCell.row-1)) && ((cell.column == (pCell.column+1)) || (cell.column == (pCell.column-1)))) {
+            //Douglas, find the team so that you cannot double jump over your own teammates.
+            //if(pCell.row == Cell)
             //p2Pieces.splice(i,1);
             p2NumPieces -= 1;
             kNumPieces -= 1;
             //p1Pieces[i].row = cell.row;
             //p1Pieces[i].column = cell.column;
             return true;
-        }
+        // }
     }
     if(selectedTeam == 1) {
-        if((cell.row == (pCell.row-1)) && ((cell.column == (pCell.column+1)) || (cell.column == (pCell.column-1)))) {
+        // if((cell.row == (pCell.row+1)) && ((cell.column == (pCell.column+1)) || (cell.column == (pCell.column-1)))) {
             //p1Pieces.splice(i,1);
             p1NumPieces -= 1;
             kNumPieces -= 1;
             //p1Pieces[i].row = cell.row;
             //p1Pieces[i].column = cell.column;
             return true;
-        }
+        // }
     }
     return false;
 }
@@ -241,7 +241,7 @@ function isTheGameOver() {
 
 function drawBoard() {
     if (gGameInProgress && isTheGameOver()) {
-	   endGame();
+       endGame();
     }
 
     gDrawingContext.clearRect(0, 0, kPixelWidth, kPixelHeight);
@@ -250,14 +250,14 @@ function drawBoard() {
     
     /* vertical lines */
     for (var x = 0; x <= kPixelWidth; x += kPieceWidth) {
-	   gDrawingContext.moveTo(0.5 + x, 0);
-	   gDrawingContext.lineTo(0.5 + x, kPixelHeight);
+       gDrawingContext.moveTo(0.5 + x, 0);
+       gDrawingContext.lineTo(0.5 + x, kPixelHeight);
     }
     
     /* horizontal lines */
     for (var y = 0; y <= kPixelHeight; y += kPieceHeight) {
-	   gDrawingContext.moveTo(0, 0.5 + y);
-	   gDrawingContext.lineTo(kPixelWidth, 0.5 +  y);
+       gDrawingContext.moveTo(0, 0.5 + y);
+       gDrawingContext.lineTo(kPixelWidth, 0.5 +  y);
     }
     
     /* draw it! */
@@ -301,9 +301,9 @@ function drawP1Piece(p,selected,team) {
     gDrawingContext.beginPath();
     gDrawingContext.arc(x, y, radius, 0, Math.PI*2, false);
     gDrawingContext.closePath();
-    gDrawingContext.strokeStyle = "rgb(0,0,0)";
+    gDrawingContext.strokeStyle = "rgb(255,255,255)";
     gDrawingContext.stroke();
-    gDrawingContext.fillStyle = "rgb(255,0,0)";
+    gDrawingContext.fillStyle = "rgb(0,0,0)";
     if (selected) {
         gDrawingContext.fillStyle = "rgb(255,255,51)";
         gDrawingContext.fill();
@@ -361,13 +361,13 @@ function resumeGame() {
         p1Pieces = new Array(p1NumPieces);
         //p2Pieces = new Array(kNumPieces/2);
         p2Pieces = new Array(p2NumPieces);
-    for (var i = 0; i < kNumPieces/2; i++) {
-	   var row = parseInt(localStorage["board.p1Piece." + i + ".row"]);
-	   var column = parseInt(localStorage["board.p1Piece." + i + ".column"]);
+    for (var i = 0; i < p1NumPieces; i++) {
+       var row = parseInt(localStorage["board.p1Piece." + i + ".row"]);
+       var column = parseInt(localStorage["board.p1Piece." + i + ".column"]);
        var team = parseInt(localStorage["board.p1Piece." + i + ".team"]);
-	   p1Pieces[i] = new Cell(row, column, team);
+       p1Pieces[i] = new Cell(row, column, team);
     }
-    for (var i = 0; i < kNumPieces/2; i++) {
+    for (var i = 0; i < p2NumPieces; i++) {
        var row = parseInt(localStorage["board.p2Piece." + i + ".row"]);
        var column = parseInt(localStorage["board.p2Piece." + i + ".column"]);
        var team = parseInt(localStorage["board.p2Piece." + i + ".team"]);
@@ -467,12 +467,12 @@ function endGame() {
 function initGame(canvasElement, moveCountElement) {
     if (!canvasElement) {
         canvasElement = document.createElement("canvas");
-	canvasElement.id = "checkers_canvas";
-	document.body.appendChild(canvasElement);
+    canvasElement.id = "checkers_canvas";
+    document.body.appendChild(canvasElement);
     }
     if (!moveCountElement) {
         moveCountElement = document.createElement("p");
-	document.body.appendChild(moveCountElement);
+    document.body.appendChild(moveCountElement);
     }
     gCanvasElement = canvasElement;
     gCanvasElement.width = kPixelWidth;
@@ -481,6 +481,6 @@ function initGame(canvasElement, moveCountElement) {
     gMoveCountElem = moveCountElement;
     gDrawingContext = gCanvasElement.getContext("2d");
     if (!resumeGame()) {
-	newGame();
+    newGame();
     }
 }
