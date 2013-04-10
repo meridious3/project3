@@ -1,7 +1,11 @@
+
+<!-- facebook app configurations. Will vary based on app profile and development path -->
 <?
   // Remember to copy files from the SDK's src/ directory to a
   // directory in your application on the server, such as php-sdk/
   require 'facebook-php-sdk-master/src/facebook.php';
+
+    // CHANGE ME BETWEEN HOSTS
 
   $config = array(
     'appId'  => '627872940559966',
@@ -16,6 +20,8 @@
   else
     $action = "none";
 ?>
+
+
 <html>
 <script>
 (function main() {
@@ -85,13 +91,18 @@
     };
 })();
 </script>
+
 <head>
     <link rel="stylesheet" type="text/css" href="css/conform.css"/>
 	<script src="js/board-localstorage.js"></script>
 	<script src="js/board.js"></script>
 
 </head>
-	<body>
+	<body>  
+
+
+
+
         <br />
 		<h1>Ye Olde English Draughts</h1>
 		<!-- <p id="moves">Moves: <span id="movecount"></span></p> -->
@@ -99,15 +110,47 @@
 	       <script>initGame(null,document.getElementById('movecount'));</script>
         </div>
         <div id="stats">
+        <?php
 
-        <div>
+        if($user_id) {
+
+          // We have a user ID, so probably a logged in user.
+          // If not, we'll get an exception, which we handle below.
+          try {
+
+            $friends = $facebook->api('/me/friends','GET');
+            $me = $facebook->api('/me');
+            echo "<h3>Welcome ".$me['first_name']." :) </h3>" ;
+
+            // CHANGE ME BETWEEN HOSTS
+
+            echo "<a href=".$facebook->getLogoutUrl( array('next' => 'http://localhost/WebDev/Project3') ).">Log out</a>";
+
+        } catch(FacebookApiException $e) {
+            // If the user is logged out, you can have a 
+            // user ID even though the access token is invalid.
+            // In this case, we'll get an exception, so we'll
+            // just ask the user to login again here.
+            $login_url = $facebook->getLoginUrl(); 
+            print('User, but no token. Please <a href="' . $login_url . '">login.</a>');
+            error_log($e->getType());
+            error_log($e->getMessage());
+          }   
+        } else {
+          // No user, print a link for the user to login
+          $login_url = $facebook->getLoginUrl();
+          print 'Please <a href="' . $login_url . '">login.</a>';
+        }    
+        ?>            
+        </div>
 	</body>
     <style>
         /**/
         #border {
             width:  400px;
-            /*height: 450px;*/
+                        
             margin: 0px auto;
+
         }
 
         /*Style goes at bottom so the background is applied */
@@ -127,6 +170,21 @@
         h1 {
             font-family: "Palatino";
             font-size: 48px;
+            color: white;
+        }
+
+        #stats {
+            
+            background-color: gray;
+            border-radius: 10px;
+            min-width: 200px;
+            min-height: 400px;
+            width: 200px;
+            height: 400px;
+            float: right;
+            position: absolute;
+            top: 150px;            
+            right: 130px;
         }
 
     </style>
