@@ -174,10 +174,8 @@ function drawBoard() {
     /* draw it! */
     gDrawingContext.strokeStyle = "rgb(204,204,204)";
     gDrawingContext.stroke();
-    
-    // for (var i = 0; i < 9; i++) {
-	   // drawPiece(gPieces[i], i == gSelectedPieceIndex);
-    // }
+
+
 
     for (var i = 0; i < p1NumPieces; i++) {
        drawP1Piece(p1Pieces[i], i == p1SelectedIndex);
@@ -324,8 +322,8 @@ function endGame() {
 function initGame(canvasElement, moveCountElement) {
     if (!canvasElement) {
         canvasElement = document.createElement("canvas");
-	canvasElement.id = "checkers_canvas";
-	document.body.appendChild(canvasElement);
+    	canvasElement.id = "checkers_canvas";
+    	document.body.appendChild(canvasElement);
     }
     if (!moveCountElement) {
         moveCountElement = document.createElement("p");

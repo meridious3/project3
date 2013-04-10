@@ -70,6 +70,13 @@
 <head>
 	<script src="js/board-localstorage.js"></script>
 	<script src="js/board.js"></script>
+    <style>
+        #checkers_canvas {
+            background-image: "img/checkerboard.jpg";
+            background-color: "0xFFFFFF";
+        }
+
+    </style>
 </head>
 	<body>
 		<h1>Checkers</h1>
