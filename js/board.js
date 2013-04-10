@@ -9,6 +9,8 @@ var gCanvasElement;
 var gDrawingContext;
 var gPattern;
 
+var playerTurn;
+
 var gPieces;
 var p1Pieces;
 var p2Pieces;
@@ -17,9 +19,11 @@ var p1NumPieces;
 var p2NumPieces;
 var gSelectedPieceIndex;
 //Have the user click twice to place a piece
-var p1SelectedIndex;
-var p2SelectedIndex;
+var p1SelectedPieceIndex;
+var p2SelectedPieceIndex;
 var gSelectedPieceHasMoved;
+var p1SelectedPieceHasMoved;
+var p2SelectedPieceHasMoved;
 var gMoveCount;
 var gMoveCountElem;
 var gGameInProgress;
@@ -51,29 +55,36 @@ function getCursorPosition(e) {
 
 function halmaOnClick(e) {
     var cell = getCursorPosition(e);
-    for (var i = 0; i < gNumPieces; i++) {
-	if ((gPieces[i].row == cell.row) && 
-	    (gPieces[i].column == cell.column)) {
-	    clickOnPiece(i);
-	    return;
-	}
+    for (var i = 0; i < p1NumPieces; i++) {
+    	if ((p1Pieces[i].row == cell.row) && 
+    	    (p1Pieces[i].column == cell.column)) {
+    	    clickOnPiece(i);
+    	    return;
+    	}
+    }
+    for (var i = 0; i < p2NumPieces; i++) {
+        if ((p2Pieces[i].row == cell.row) && 
+            (p2Pieces[i].column == cell.column)) {
+            clickOnPiece(i);
+            return;
+        }
     }
     clickOnEmptyCell(cell);
 }
 
 function clickOnEmptyCell(cell) {
-    if (gSelectedPieceIndex == -1) { return; }
-    var rowDiff = Math.abs(cell.row - gPieces[gSelectedPieceIndex].row);
-    var columnDiff = Math.abs(cell.column - gPieces[gSelectedPieceIndex].column);
+    if (p1SelectedPieceIndex == -1) { return; }
+    var rowDiff = Math.abs(cell.row - p1Pieces[p1SelectedPieceIndex].row);
+    var columnDiff = Math.abs(cell.column - p1Pieces[p1SelectedPieceIndex].column);
     if ((rowDiff <= 1) &&
 	(columnDiff <= 1)) {
 	/* we already know that this click was on an empty square,
 	   so that must mean this was a valid single-square move */
-	gPieces[gSelectedPieceIndex].row = cell.row;
-	gPieces[gSelectedPieceIndex].column = cell.column;
+	p1Pieces[p1SelectedPieceIndex].row = cell.row;
+	p1Pieces[p1SelectedPieceIndex].column = cell.column;
 	gMoveCount += 1;
-	gSelectedPieceIndex = -1;
-	gSelectedPieceHasMoved = false;
+	p1SelectedPieceIndex = -1;
+	p1SelectedPieceHasMoved = false;
 	drawBoard();
 	return;
     }
@@ -175,14 +186,19 @@ function drawBoard() {
     gDrawingContext.strokeStyle = "rgb(204,204,204)";
     gDrawingContext.stroke();
 
+    gDrawingContext.fillStyle = "rgb(0,255,0)";
+    gDrawingContext.fill();
+    
+    // for (var i = 0; i < 9; i++) {
+	   // drawPiece(gPieces[i], i == gSelectedPieceIndex);
+    // }
 
-
-    for (var i = 0; i < p1NumPieces; i++) {
-       drawP1Piece(p1Pieces[i], i == p1SelectedIndex);
+    for (var i = 0; i < 12; i++) {
+       drawP1Piece(p1Pieces[i], i == p1SelectedPieceIndex);
     }
 
-    for (var i = 0; i < p2NumPieces; i++) {
-       drawP2Piece(p2Pieces[i], i == p2SelectedIndex);
+    for (var i = 0; i < 12; i++) {
+       drawP2Piece(p2Pieces[i], i == p2SelectedPieceIndex);
     }
 
     gMoveCountElem.innerHTML = gMoveCount;
@@ -218,6 +234,8 @@ function drawP1Piece(p,selected) {
     gDrawingContext.closePath();
     gDrawingContext.strokeStyle = "rgb(0,0,0)";
     gDrawingContext.stroke();
+    gDrawingContext.fillStyle = "rgb(255,0,0)"
+    gDrawingContext.fill();
     if (selected) {
         gDrawingContext.fillStyle = "rgb(150,150,150)";
         gDrawingContext.fill();
@@ -233,8 +251,10 @@ function drawP2Piece(p,selected) {
     gDrawingContext.beginPath();
     gDrawingContext.arc(x, y, radius, 0, Math.PI*2, false);
     gDrawingContext.closePath();
-    gDrawingContext.strokeStyle = "rgb(255,255,255)";
+    gDrawingContext.strokeStyle = "rgb(0,0,0)";
     gDrawingContext.stroke();
+    gDrawingContext.fillStyle = "rgb(255,255,255)"
+    gDrawingContext.fill();
     if (selected) {
         gDrawingContext.fillStyle = "rgb(150,150,150)";
         gDrawingContext.fill();
@@ -267,47 +287,39 @@ function newGame() {
        //     new Cell(4, 4)];
 
     p1Pieces = [new Cell(0,1),
-                new Cell(0,2),
                 new Cell(0,3),
-                new Cell(0,4),
                 new Cell(0,5),
-                new Cell(0,6),
                 new Cell(0,7),
-                new Cell(0,8),
-                new Cell(1,1),
+                new Cell(1,0),
                 new Cell(1,2),
-                new Cell(1,3),
                 new Cell(1,4),
-                new Cell(1,5),
                 new Cell(1,6),
-                new Cell(1,7),
-                new Cell(1,8)
+                new Cell(2,1),
+                new Cell(2,3),
+                new Cell(2,5),
+                new Cell(2,7)
                 ];
 
-    p2Pieces = [new Cell(7,1),
+    p2Pieces = [new Cell(5,0),
+                new Cell(5,2),
+                new Cell(5,4),
+                new Cell(5,6),
+                new Cell(6,1),
+                new Cell(6,3),
+                new Cell(6,5),
+                new Cell(6,7),
+                new Cell(7,0),
                 new Cell(7,2),
-                new Cell(7,3),
                 new Cell(7,4),
-                new Cell(7,5),
-                new Cell(7,6),
-                new Cell(7,7),
-                new Cell(7,8),
-                new Cell(8,1),
-                new Cell(8,2),
-                new Cell(8,3),
-                new Cell(8,4),
-                new Cell(8,5),
-                new Cell(8,6),
-                new Cell(8,7),
-                new Cell(8,8)
+                new Cell(7,6)
                 ];
 
     //gNumPieces = gPieces.length;
     p1NumPieces = p1Pieces.length;
     p2NumPieces = p2Pieces.length;
     gSelectedPieceIndex = -1;
-    p1SelectedIndex = -1;
-    p2SelectedIndex = -1;
+    p1SelectedPieceIndex = -1;
+    p2SelectedPieceIndex = -1;
     gSelectedPieceHasMoved = false;
     gMoveCount = 0;
     gGameInProgress = true;
@@ -316,6 +328,8 @@ function newGame() {
 
 function endGame() {
     gSelectedPieceIndex = -1;
+    p1SelectedPieceIndex = -1;
+    p2SelectedPieceIndex = -1;
     gGameInProgress = false;
 }
 

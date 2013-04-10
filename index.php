@@ -68,12 +68,13 @@
 })();
 </script>
 <head>
+    <link rel="stylesheet" type="text/css" href="css/conform.css"/>
 	<script src="js/board-localstorage.js"></script>
 	<script src="js/board.js"></script>
 
 </head>
 	<body>
-		<h1>Checkers</h1>
+		<h1>English Draughts</h1>
 		<p id="moves">Moves: <span id="movecount"></span></p>
 		<script>initGame(null,document.getElementById('movecount'));</script>
 	</body>
