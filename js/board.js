@@ -59,14 +59,14 @@ function halmaOnClick(e) {
     for (var i = 0; i < p1NumPieces; i++) {
     	if ((p1Pieces[i].row == cell.row) && 
     	    (p1Pieces[i].column == cell.column)) {
-    	    clickOnPiece(i);
+    	    clickOnPiece(i,0);
     	    return;
     	}
     }
     for (var i = 0; i < p2NumPieces; i++) {
         if ((p2Pieces[i].row == cell.row) && 
             (p2Pieces[i].column == cell.column)) {
-            clickOnPiece(i);
+            clickOnPiece(i,1);
             return;
         }
     }
@@ -108,9 +108,15 @@ function clickOnEmptyCell(cell) {
     drawBoard();
 }
 
-function clickOnPiece(pieceIndex) {
+function clickOnPiece(pieceIndex,team) {
     if (gSelectedPieceIndex == pieceIndex) { return; }
-    gSelectedPieceIndex = pieceIndex;
+    if(team == 0) {
+        p1SelectedPieceIndex = pieceIndex;
+    }
+    if(team == 1) {
+        p2SelectedPieceIndex = pieceIndex;
+    }
+    //gSelectedPieceIndex = pieceIndex;
     gSelectedPieceHasMoved = false;
     drawBoard();
 }
@@ -201,12 +207,12 @@ function drawBoard() {
 
     for (var i = 0; i < 12; i++) {
        // drawP1Piece(p1Pieces[i], i == p1SelectedPieceIndex);
-       drawP1Piece(p1Pieces[i], i == gSelectedPieceIndex);
+       drawP1Piece(p1Pieces[i], i == gSelectedPieceIndex, 0);
     }
 
     for (var i = 0; i < 12; i++) {
        // drawP2Piece(p2Pieces[i], i == p2SelectedPieceIndex);
-       drawP2Piece(p2Pieces[i], i == gSelectedPieceIndex);
+       drawP2Piece(p2Pieces[i], i == gSelectedPieceIndex, 1);
     }
 
     gMoveCountElem.innerHTML = gMoveCount;
@@ -231,9 +237,10 @@ function drawPiece(p, selected) {
     }
 }
 
-function drawP1Piece(p,selected) {
+function drawP1Piece(p,selected,team) {
     var column = p.column;
     var row = p.row;
+    var team = p.team;
     var x = (column * kPieceWidth) + (kPieceWidth/2);
     var y = (row * kPieceHeight) + (kPieceHeight/2);
     var radius = (kPieceWidth/2) - (kPieceWidth/10);
@@ -250,9 +257,10 @@ function drawP1Piece(p,selected) {
     }
 }
 
-function drawP2Piece(p,selected) {
+function drawP2Piece(p,selected,team) {
     var column = p.column;
     var row = p.row;
+    var team = p.team;
     var x = (column * kPieceWidth) + (kPieceWidth/2);
     var y = (row * kPieceHeight) + (kPieceHeight/2);
     var radius = (kPieceWidth/2) - (kPieceWidth/10);
@@ -261,7 +269,7 @@ function drawP2Piece(p,selected) {
     gDrawingContext.closePath();
     gDrawingContext.strokeStyle = "rgb(0,0,0)";
     gDrawingContext.stroke();
-    gDrawingContext.fillStyle = "rgb(255,255,255)"
+    gDrawingContext.fillStyle = "rgb(230,230,230)"
     gDrawingContext.fill();
     if (selected) {
         gDrawingContext.fillStyle = "rgb(150,150,150)";
@@ -336,8 +344,8 @@ function newGame() {
 
 function endGame() {
     gSelectedPieceIndex = -1;
-    //p1SelectedPieceIndex = -1;
-    //p2SelectedPieceIndex = -1;
+    p1SelectedPieceIndex = -1;
+    p2SelectedPieceIndex = -1;
     gGameInProgress = false;
 }
 

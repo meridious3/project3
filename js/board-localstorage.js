@@ -57,18 +57,16 @@ function halmaOnClick(e) {
     var cell = getCursorPosition(e);
     for (var i = 0; i < p1NumPieces; i++) {
     	if ((p1Pieces[i].row == cell.row) && 
-    	    (p1Pieces[i].column == cell.column)
-            (p1Pieces[i].team == cell.team)) {
-    	    clickOnPiece(i);
+    	    (p1Pieces[i].column == cell.column)) {
+    	    clickOnPiece(i,0);
     	    return;
     	}
     }
 
     for (var i = 0; i < p2NumPieces; i++) {
         if ((p2Pieces[i].row == cell.row) && 
-            (p2Pieces[i].column == cell.column)
-            p2Pieces[i].team == cell.team) {
-            clickOnPiece(i);
+            (p2Pieces[i].column == cell.column)) {
+            clickOnPiece(i,1);
             return;
         }
     }
@@ -110,13 +108,16 @@ function clickOnEmptyCell(cell) {
     drawBoard();
 }
 
-function clickOnPiece(pieceIndex) {
-    // if (gSelectedPieceIndex == pieceIndex) { return; }
-    // gSelectedPieceIndex = pieceIndex;
-    // gSelectedPieceHasMoved = false;
-    if (p1SelectedPieceIndex == pieceIndex) { return; }
-    p1SelectedPieceIndex = pieceIndex;
-    p1SelectedPieceHasMoved = false;
+function clickOnPiece(pieceIndex, team) {
+    if (gSelectedPieceIndex == pieceIndex) { return; }
+    if(team == 0) {
+        p1SelectedPieceIndex = pieceIndex;
+    }
+    if(team == 1) {
+        p2SelectedPieceIndex = pieceIndex;
+    }
+    gSelectedPieceIndex = pieceIndex;
+    gSelectedPieceHasMoved = false;
     drawBoard();
 }
 
@@ -127,15 +128,13 @@ function isThereAPieceBetween(cell1, cell2) {
     var columnBetween = (cell1.column + cell2.column) / 2;
     for (var i = 0; i < p1NumPieces; i++) {
     	if ((p1Pieces[i].row == rowBetween) &&
-    	    (p1Pieces[i].column == columnBetween)
-            (p1Pieces[i].team == teamBetween)) {
+    	    (p1Pieces[i].column == columnBetween)) {
     	    return true;
     	}
     }
     for (var i = 0; i < p2NumPieces; i++) {
         if ((p2Pieces[i].row == rowBetween) &&
-            (p2Pieces[i].column == columnBetween)
-            (p2Pieces[i].team == teamBetween)) {
+            (p2Pieces[i].column == columnBetween)) {
             return true;
         }
     }
@@ -207,11 +206,11 @@ function drawBoard() {
     // }
 
     for (var i = 0; i < 12; i++) {
-       drawP1Piece(p1Pieces[i], i == gSelectedPieceIndex);
+       drawP1Piece(p1Pieces[i], i == gSelectedPieceIndex, 0);
     }
 
     for (var i = 0; i < 12; i++) {
-       drawP2Piece(p2Pieces[i], i == gSelectedPieceIndex);
+       drawP2Piece(p2Pieces[i], i == gSelectedPieceIndex, 1);
     }
 
     gMoveCountElem.innerHTML = gMoveCount;
@@ -236,9 +235,10 @@ function drawPiece(p, selected) {
     }
 }
 
-function drawP1Piece(p,selected) {
+function drawP1Piece(p,selected,team) {
     var column = p.column;
     var row = p.row;
+    var team = p.team;
     var x = (column * kPieceWidth) + (kPieceWidth/2);
     var y = (row * kPieceHeight) + (kPieceHeight/2);
     var radius = (kPieceWidth/2) - (kPieceWidth/10);
@@ -254,9 +254,10 @@ function drawP1Piece(p,selected) {
     }
 }
 
-function drawP2Piece(p,selected) {
+function drawP2Piece(p,selected,team) {
     var column = p.column;
     var row = p.row;
+    var team = p.team;
     var x = (column * kPieceWidth) + (kPieceWidth/2);
     var y = (row * kPieceHeight) + (kPieceHeight/2);
     var radius = (kPieceWidth/2) - (kPieceWidth/10);
@@ -265,7 +266,7 @@ function drawP2Piece(p,selected) {
     gDrawingContext.closePath();
     gDrawingContext.strokeStyle = "rgb(0,0,0)";
     gDrawingContext.stroke();
-    gDrawingContext.fillStyle = "rgb(255,255,255)";
+    gDrawingContext.fillStyle = "rgb(230,230,230)";
     gDrawingContext.fill();
     if (selected) {
         gDrawingContext.fillStyle = "rgb(150,150,150)";
@@ -302,13 +303,13 @@ function resumeGame() {
     if (!gGameInProgress) { return false; }
         p1Pieces = new Array(kNumPieces/2);
         p2Pieces = new Array(kNumPieces/2);
-    for (var i = 0; i < kNumPieces; i++) {
+    for (var i = 0; i < kNumPieces/2; i++) {
 	   var row = parseInt(localStorage["board.p1Piece." + i + ".row"]);
 	   var column = parseInt(localStorage["board.p1Piece." + i + ".column"]);
-       var team = parseInt(localStorge["board.p1Piece." + i + ".team"]);
+       var team = parseInt(localStorage["board.p1Piece." + i + ".team"]);
 	   p1Pieces[i] = new Cell(row, column, team);
     }
-    for (var i = 0; i < kNumPieces; i++) {
+    for (var i = 0; i < kNumPieces/2; i++) {
        var row = parseInt(localStorage["board.p2Piece." + i + ".row"]);
        var column = parseInt(localStorage["board.p2Piece." + i + ".column"]);
        var team = parseInt(localStorage["board.p2Piece." + i + ".team"]);
