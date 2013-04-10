@@ -48,8 +48,8 @@ function getCursorPosition(e) {
     y -= gCanvasElement.offsetTop;
     x = Math.min(x, kBoardWidth * kPieceWidth);
     y = Math.min(y, kBoardHeight * kPieceHeight);
-    //Douglas, Need to add the team
-    var cell = new Cell(Math.floor(y/kPieceHeight), Math.floor(x/kPieceWidth));
+    //Douglas, Team '2' is the cursor.
+    var cell = new Cell(Math.floor(y/kPieceHeight), Math.floor(x/kPieceWidth) , 2);
     return cell;
 }
 
@@ -154,23 +154,31 @@ function isThereAPieceBetween(cell1, cell2) {
 // }
 
 function isTheGameOver() {
-    for (var i = 0; i < p1NumPieces; i++) {
-        if (p1Pieces[i].row > 2) {
-            return false;
-        }
-        if (p1Pieces[i].column < (kBoardWidth - 3)) {
-            return false;
-        }
+    // for (var i = 0; i < p1NumPieces; i++) {
+    //     if (p1Pieces[i].row > 2) {
+    //         return false;
+    //     }
+    //     if (p1Pieces[i].column < (kBoardWidth - 3)) {
+    //         return false;
+    //     }
+    // }
+
+    // for (var i = 0; i < p2NumPieces; i++) {
+    //     if (p2Pieces[i].row > 2) {
+    //         return false;
+    //     }
+    //     if (p2Pieces[i].column < (kBoardWidth - 3)) {
+    //         return false;
+    //     }
+    // }
+
+    if(p1NumPieces!=0) {
+        return false;
+    }
+    if(p2NumPieces!=0) {
+        return false;
     }
 
-    for (var i = 0; i < p2NumPieces; i++) {
-        if (p2Pieces[i].row > 2) {
-            return false;
-        }
-        if (p2Pieces[i].column < (kBoardWidth - 3)) {
-            return false;
-        }
-    }
     return true;
 }
 
@@ -303,13 +311,13 @@ function resumeGame() {
     if (!gGameInProgress) { return false; }
         p1Pieces = new Array(kNumPieces/2);
         p2Pieces = new Array(kNumPieces/2);
-    for (var i = 0; i < kNumPieces/2; i++) {
+    for (var i = 0; i < p1Pieces.length; i++) {
 	   var row = parseInt(localStorage["board.p1Piece." + i + ".row"]);
 	   var column = parseInt(localStorage["board.p1Piece." + i + ".column"]);
        var team = parseInt(localStorage["board.p1Piece." + i + ".team"]);
 	   p1Pieces[i] = new Cell(row, column, team);
     }
-    for (var i = 0; i < kNumPieces/2; i++) {
+    for (var i = 0; i < p2Pieces.length; i++) {
        var row = parseInt(localStorage["board.p2Piece." + i + ".row"]);
        var column = parseInt(localStorage["board.p2Piece." + i + ".column"]);
        var team = parseInt(localStorage["board.p2Piece." + i + ".team"]);

@@ -50,7 +50,8 @@ function getCursorPosition(e) {
     y -= gCanvasElement.offsetTop;
     x = Math.min(x, kBoardWidth * kPieceWidth);
     y = Math.min(y, kBoardHeight * kPieceHeight);
-    var cell = new Cell(Math.floor(y/kPieceHeight), Math.floor(x/kPieceWidth));
+    //Douglas, team '2' is the cursor
+    var cell = new Cell(Math.floor(y/kPieceHeight), Math.floor(x/kPieceWidth), 2);
     return cell;
 }
 
@@ -74,9 +75,9 @@ function halmaOnClick(e) {
 }
 
 function clickOnEmptyCell(cell) {
-    if (p1SelectedPieceIndex == -1) { return; }
+    if (gSelectedPieceIndex == -1) { return; }
     var rowDiff = Math.abs(cell.row - p1Pieces[gSelectedPieceIndex].row);
-    var columnDiff = Math.abs(cell.column - gPieces[p1SelectedPieceIndex].column);
+    var columnDiff = Math.abs(cell.column - p1Pieces[gSelectedPieceIndex].column);
     if ((rowDiff <= 1) &&
 	(columnDiff <= 1)) {
 	/* we already know that this click was on an empty square,
@@ -116,7 +117,7 @@ function clickOnPiece(pieceIndex,team) {
     if(team == 1) {
         p2SelectedPieceIndex = pieceIndex;
     }
-    //gSelectedPieceIndex = pieceIndex;
+    gSelectedPieceIndex = pieceIndex;
     gSelectedPieceHasMoved = false;
     drawBoard();
 }
@@ -154,23 +155,31 @@ function isThereAPieceBetween(cell1, cell2) {
 // }
 
 function isTheGameOver() {
-    for (var i = 0; i < p1NumPieces; i++) {
-        if (p1Pieces[i].row > 2) {
-            return false;
-        }
-        if (p1Pieces[i].column < (kBoardWidth - 3)) {
-            return false;
-        }
+    // for (var i = 0; i < p1NumPieces; i++) {
+    //     if (p1Pieces[i].row > 2) {
+    //         return false;
+    //     }
+    //     if (p1Pieces[i].column < (kBoardWidth - 3)) {
+    //         return false;
+    //     }
+    // }
+
+    // for (var i = 0; i < p2NumPieces; i++) {
+    //     if (p2Pieces[i].row > 2) {
+    //         return false;
+    //     }
+    //     if (p2Pieces[i].column < (kBoardWidth - 3)) {
+    //         return false;
+    //     }
+    // }
+
+    if(p1NumPieces!=0) {
+        return false;
+    }
+    if(p2NumPieces!=0) {
+        return false;
     }
 
-    for (var i = 0; i < p2NumPieces; i++) {
-        if (p2Pieces[i].row > 2) {
-            return false;
-        }
-        if (p2Pieces[i].column < (kBoardWidth - 3)) {
-            return false;
-        }
-    }
     return true;
 }
 

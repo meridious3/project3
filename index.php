@@ -1,4 +1,5 @@
 <html>
+<head>
 <script>
 (function main() {
     // Create enabled event
@@ -67,7 +68,6 @@
     };
 })();
 </script>
-<head>
     <link rel="stylesheet" type="text/css" href="css/conform.css"/>
 	<script src="js/board-localstorage.js"></script>
 	<script src="js/board.js"></script>
