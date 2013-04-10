@@ -15,8 +15,8 @@ var gPieces;
 var p1Pieces;
 var p2Pieces;
 var gNumPieces;
-var p1NumPieces;// = 12;
-var p2NumPieces;// = 12;
+var p1NumPieces = 12;
+var p2NumPieces = 12;
 //Showing which team is selected
 var selectedTeam = null;
 var gSelectedPieceIndex;
@@ -372,6 +372,7 @@ function drawBoard() {
     }
     //reset p1SelectedPieceIndex;
     p1SelectedPieceIndex = null;
+    gSelectedPieceIndex = -1;
 
     for (var i = 0; i < p2NumPieces; i++) {
        // drawP2Piece(p2Pieces[i], i == gSelectedPieceIndex);
@@ -380,6 +381,7 @@ function drawBoard() {
     }
     //reset p2SelectedPieceIndex;
     p2SelectedPieceIndex = null;
+    gSelectedPieceIndex = -1;
 
     gMoveCountElem.innerHTML = gMoveCount;
 

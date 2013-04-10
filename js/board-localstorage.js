@@ -358,6 +358,7 @@ function drawBoard() {
        // drawP1Piece(p1Pieces[i], selectedTeam, 0);
     }
     p1SelectedPieceIndex = null;
+    gSelectedPieceIndex = -1;
 
     for (var i = 0; i < p2NumPieces; i++) {
        // drawP2Piece(p2Pieces[i], i == gSelectedPieceIndex);
@@ -365,6 +366,7 @@ function drawBoard() {
        // drawP2Piece(p2Pieces[i], selectedTeam, 1);
     }
     p2SelectedPieceIndex = null;
+    gSelectedPieceIndex = -1;
 
     gMoveCountElem.innerHTML = gMoveCount;
 
@@ -417,15 +419,15 @@ function supportsLocalStorage() {
 function saveGameState() {
     if (!supportsLocalStorage()) { return false; }
         localStorage["board.game.in.progress"] = gGameInProgress;
-    for (var i = 0; i < kNumPieces/2; i++) {
-	   //localStorage["board.piece." + i + ".row"] = gPieces[i].row;
-	   //localStorage["board.piece." + i + ".column"] = gPieces[i].column;
+    for (var i = 0; i < p1NumPieces; i++) {
        localStorage["board.p1Piece." + i + ".row"] = p1Pieces[i].row;
        localStorage["board.p1Piece." + i + ".column"] = p1Pieces[i].column;
        localStorage["board.p1Piece." + i + ".team"] = p1Pieces[i].team;
-       localStorage["board.p2Piece." + i + ".row"] = p2Pieces[i].row;
-       localStorage["board.p2Piece." + i + ".column"] = p2Pieces[i].column;
-       localStorage["board.p2Piece." + i + ".team"] = p2Pieces[i].team;
+    }
+    for(var i = 0; i < p2NumPieces; i++) {
+        localStorage["board.p2Piece." + i + ".row"] = p2Pieces[i].row;
+        localStorage["board.p2Piece." + i + ".column"] = p2Pieces[i].column;
+        localStorage["board.p2Piece." + i + ".team"] = p2Pieces[i].team;
     }
     localStorage["board.selectedpiece"] = gSelectedPieceIndex;
     localStorage["board.selectedpiecehasmoved"] = gSelectedPieceHasMoved;
