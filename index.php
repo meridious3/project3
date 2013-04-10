@@ -70,17 +70,19 @@
 <head>
 	<script src="js/board-localstorage.js"></script>
 	<script src="js/board.js"></script>
-    <style>
-        #checkers_canvas {
-            background-image: "img/checkerboard.jpg";
-            background-color: "0xFFFFFF";
-        }
 
-    </style>
 </head>
 	<body>
 		<h1>Checkers</h1>
 		<p id="moves">Moves: <span id="movecount"></span></p>
 		<script>initGame(null,document.getElementById('movecount'));</script>
 	</body>
+    <style>
+        #checkers_canvas {
+            background-image:url('img/checkerboard.jpg');
+            background-size: cover;
+            
+        }
+
+    </style>
 </html>
