@@ -28,9 +28,10 @@ var gMoveCount;
 var gMoveCountElem;
 var gGameInProgress;
 
-function Cell(row, column) {
+function Cell(row, column, team) {
     this.row = row;
     this.column = column;
+    this.team = team;
 }
 
 function getCursorPosition(e) {
@@ -83,8 +84,8 @@ function clickOnEmptyCell(cell) {
 	p1Pieces[p1SelectedPieceIndex].row = cell.row;
 	p1Pieces[p1SelectedPieceIndex].column = cell.column;
 	gMoveCount += 1;
-	p1SelectedPieceIndex = -1;
-	p1SelectedPieceHasMoved = false;
+	gSelectedPieceIndex = -1;
+	gSelectedPieceHasMoved = false;
 	drawBoard();
 	return;
     }
@@ -293,40 +294,40 @@ function newGame() {
        //     new Cell(4, 3),
        //     new Cell(4, 4)];
 
-    p1Pieces = [new Cell(0,1),
-                new Cell(0,3),
-                new Cell(0,5),
-                new Cell(0,7),
-                new Cell(1,0),
-                new Cell(1,2),
-                new Cell(1,4),
-                new Cell(1,6),
-                new Cell(2,1),
-                new Cell(2,3),
-                new Cell(2,5),
-                new Cell(2,7)
+    p1Pieces = [new Cell(0,1,0),
+                new Cell(0,3,0),
+                new Cell(0,5,0),
+                new Cell(0,7,0),
+                new Cell(1,0,0),
+                new Cell(1,2,0),
+                new Cell(1,4,0),
+                new Cell(1,6,0),
+                new Cell(2,1,0),
+                new Cell(2,3,0),
+                new Cell(2,5,0),
+                new Cell(2,7,0)
                 ];
 
-    p2Pieces = [new Cell(5,0),
-                new Cell(5,2),
-                new Cell(5,4),
-                new Cell(5,6),
-                new Cell(6,1),
-                new Cell(6,3),
-                new Cell(6,5),
-                new Cell(6,7),
-                new Cell(7,0),
-                new Cell(7,2),
-                new Cell(7,4),
-                new Cell(7,6)
+    p2Pieces = [new Cell(5,0,1),
+                new Cell(5,2,1),
+                new Cell(5,4,1),
+                new Cell(5,6,1),
+                new Cell(6,1,1),
+                new Cell(6,3,1),
+                new Cell(6,5,1),
+                new Cell(6,7,1),
+                new Cell(7,0,1),
+                new Cell(7,2,1),
+                new Cell(7,4,1),
+                new Cell(7,6,1)
                 ];
 
     //gNumPieces = gPieces.length;
     p1NumPieces = p1Pieces.length;
     p2NumPieces = p2Pieces.length;
     gSelectedPieceIndex = -1;
-    //p1SelectedPieceIndex = -1;
-    //p2SelectedPieceIndex = -1;
+    p1SelectedPieceIndex = -1;
+    p2SelectedPieceIndex = -1;
     gSelectedPieceHasMoved = false;
     gMoveCount = 0;
     gGameInProgress = true;

@@ -26,9 +26,10 @@ var gMoveCount;
 var gMoveCountElem;
 var gGameInProgress;
 
-function Cell(row, column) {
+function Cell(row, column, team) {
     this.row = row;
     this.column = column;
+    this.team = team;
 }
 
 function getCursorPosition(e) {
@@ -47,6 +48,7 @@ function getCursorPosition(e) {
     y -= gCanvasElement.offsetTop;
     x = Math.min(x, kBoardWidth * kPieceWidth);
     y = Math.min(y, kBoardHeight * kPieceHeight);
+    //Douglas, Need to add the team
     var cell = new Cell(Math.floor(y/kPieceHeight), Math.floor(x/kPieceWidth));
     return cell;
 }
@@ -55,7 +57,8 @@ function halmaOnClick(e) {
     var cell = getCursorPosition(e);
     for (var i = 0; i < p1NumPieces; i++) {
     	if ((p1Pieces[i].row == cell.row) && 
-    	    (p1Pieces[i].column == cell.column)) {
+    	    (p1Pieces[i].column == cell.column)
+            (p1Pieces[i].team == cell.team)) {
     	    clickOnPiece(i);
     	    return;
     	}
@@ -63,7 +66,8 @@ function halmaOnClick(e) {
 
     for (var i = 0; i < p2NumPieces; i++) {
         if ((p2Pieces[i].row == cell.row) && 
-            (p2Pieces[i].column == cell.column)) {
+            (p2Pieces[i].column == cell.column)
+            p2Pieces[i].team == cell.team) {
             clickOnPiece(i);
             return;
         }
@@ -73,8 +77,8 @@ function halmaOnClick(e) {
 
 function clickOnEmptyCell(cell) {
     if (gSelectedPieceIndex == -1) { return; }
-    var rowDiff = Math.abs(cell.row - p1Pieces[p1SelectedPieceIndex].row);
-    var columnDiff = Math.abs(cell.column - p1Pieces[p1SelectedPieceIndex].column);
+    var rowDiff = Math.abs(cell.row - p1Pieces[gSelectedPieceIndex].row);
+    var columnDiff = Math.abs(cell.column - p1Pieces[gSelectedPieceIndex].column);
     if ((rowDiff <= 1) &&
 	(columnDiff <= 1)) {
     	/* we already know that this click was on an empty square,
@@ -110,7 +114,7 @@ function clickOnPiece(pieceIndex) {
     // if (gSelectedPieceIndex == pieceIndex) { return; }
     // gSelectedPieceIndex = pieceIndex;
     // gSelectedPieceHasMoved = false;
-    if (gSelectedPieceIndex == pieceIndex) { return; }
+    if (p1SelectedPieceIndex == pieceIndex) { return; }
     p1SelectedPieceIndex = pieceIndex;
     p1SelectedPieceHasMoved = false;
     drawBoard();
@@ -123,13 +127,15 @@ function isThereAPieceBetween(cell1, cell2) {
     var columnBetween = (cell1.column + cell2.column) / 2;
     for (var i = 0; i < p1NumPieces; i++) {
     	if ((p1Pieces[i].row == rowBetween) &&
-    	    (p1Pieces[i].column == columnBetween)) {
+    	    (p1Pieces[i].column == columnBetween)
+            (p1Pieces[i].team == teamBetween)) {
     	    return true;
     	}
     }
     for (var i = 0; i < p2NumPieces; i++) {
         if ((p2Pieces[i].row == rowBetween) &&
-            (p2Pieces[i].column == columnBetween)) {
+            (p2Pieces[i].column == columnBetween)
+            (p2Pieces[i].team == teamBetween)) {
             return true;
         }
     }
@@ -201,11 +207,11 @@ function drawBoard() {
     // }
 
     for (var i = 0; i < 12; i++) {
-       drawP1Piece(p1Pieces[i], i == p1SelectedIndex);
+       drawP1Piece(p1Pieces[i], i == gSelectedPieceIndex);
     }
 
     for (var i = 0; i < 12; i++) {
-       drawP2Piece(p2Pieces[i], i == p2SelectedIndex);
+       drawP2Piece(p2Pieces[i], i == gSelectedPieceIndex);
     }
 
     gMoveCountElem.innerHTML = gMoveCount;
@@ -279,8 +285,10 @@ function saveGameState() {
 	   //localStorage["board.piece." + i + ".column"] = gPieces[i].column;
        localStorage["board.p1Piece." + i + ".row"] = p1Pieces[i].row;
        localStorage["board.p1Piece." + i + ".column"] = p1Pieces[i].column;
+       localStorage["board.p1Piece." + i + ".team"] = p1Pieces[i].team;
        localStorage["board.p2Piece." + i + ".row"] = p2Pieces[i].row;
        localStorage["board.p2Piece." + i + ".column"] = p2Pieces[i].column;
+       localStorage["board.p2Piece." + i + ".team"] = p2Pieces[i].team;
     }
     localStorage["board.selectedpiece"] = gSelectedPieceIndex;
     localStorage["board.selectedpiecehasmoved"] = gSelectedPieceHasMoved;
@@ -297,12 +305,14 @@ function resumeGame() {
     for (var i = 0; i < kNumPieces; i++) {
 	   var row = parseInt(localStorage["board.p1Piece." + i + ".row"]);
 	   var column = parseInt(localStorage["board.p1Piece." + i + ".column"]);
-	   p1Pieces[i] = new Cell(row, column);
+       var team = parseInt(localStorge["board.p1Piece." + i + ".team"]);
+	   p1Pieces[i] = new Cell(row, column, team);
     }
     for (var i = 0; i < kNumPieces; i++) {
        var row = parseInt(localStorage["board.p2Piece." + i + ".row"]);
        var column = parseInt(localStorage["board.p2Piece." + i + ".column"]);
-       p2Pieces[i] = new Cell(row, column);
+       var team = parseInt(localStorage["board.p2Piece." + i + ".team"]);
+       p2Pieces[i] = new Cell(row, column, team);
     }
     gNumPieces = kNumPieces;
     gSelectedPieceIndex = parseInt(localStorage["board.selectedpiece"]);
@@ -328,32 +338,32 @@ function newGame() {
        //     new Cell(4, 3),
        //     new Cell(4, 4)];
 
-       p1Pieces = [new Cell(0,1),
-                    new Cell(0,3),
-                    new Cell(0,5),
-                    new Cell(0,7),
-                    new Cell(1,0),
-                    new Cell(1,2),
-                    new Cell(1,4),
-                    new Cell(1,6),
-                    new Cell(2,1),
-                    new Cell(2,3),
-                    new Cell(2,5),
-                    new Cell(2,7)
+       p1Pieces = [new Cell(0,1,0),
+                    new Cell(0,3,0),
+                    new Cell(0,5,0),
+                    new Cell(0,7,0),
+                    new Cell(1,0,0),
+                    new Cell(1,2,0),
+                    new Cell(1,4,0),
+                    new Cell(1,6,0),
+                    new Cell(2,1,0),
+                    new Cell(2,3,0),
+                    new Cell(2,5,0),
+                    new Cell(2,7,0)
                     ];
 
-        p2Pieces = [new Cell(5,0),
-                    new Cell(5,2),
-                    new Cell(5,4),
-                    new Cell(5,6),
-                    new Cell(6,1),
-                    new Cell(6,3),
-                    new Cell(6,5),
-                    new Cell(6,7),
-                    new Cell(7,0),
-                    new Cell(7,2),
-                    new Cell(7,4),
-                    new Cell(7,6)
+        p2Pieces = [new Cell(5,0,1),
+                    new Cell(5,2,1),
+                    new Cell(5,4,1),
+                    new Cell(5,6,1),
+                    new Cell(6,1,1),
+                    new Cell(6,3,1),
+                    new Cell(6,5,1),
+                    new Cell(6,7,1),
+                    new Cell(7,0,1),
+                    new Cell(7,2,1),
+                    new Cell(7,4,1),
+                    new Cell(7,6,1)
                     ];
     
     //gNumPieces = gPieces.length;
