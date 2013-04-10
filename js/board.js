@@ -17,6 +17,8 @@ var p2Pieces;
 var gNumPieces;
 var p1NumPieces;// = 12;
 var p2NumPieces;// = 12;
+//Showing which team is selected
+var selectedTeam = null;
 var gSelectedPieceIndex;
 //Have the user click twice to place a piece
 var p1SelectedPieceIndex;
@@ -55,61 +57,99 @@ function getCursorPosition(e) {
     return cell;
 }
 
-function halmaOnClick(e) {
+function chipOnClick(e) {
     var cell = getCursorPosition(e);
     for (var i = 0; i < p1NumPieces; i++) {
     	if ((p1Pieces[i].row == cell.row) && 
     	    (p1Pieces[i].column == cell.column)) {
-    	    clickOnPiece(i,0);
+            selectedTeam = 0;
+    	    clickOnPiece(i,selectedTeam);
     	    return;
     	}
     }
     for (var i = 0; i < p2NumPieces; i++) {
         if ((p2Pieces[i].row == cell.row) && 
             (p2Pieces[i].column == cell.column)) {
-            clickOnPiece(i,1);
+            selectedTeam = 1;
+            clickOnPiece(i,selectedTeam);
             return;
         }
     }
-    clickOnEmptyCell(cell);
+    clickOnEmptyCell(cell, selectedTeam);
 }
 
-function clickOnEmptyCell(cell) {
+function clickOnEmptyCell(cell, selectedTeam) {
     if (gSelectedPieceIndex == -1) { return; }
-    var rowDiff = Math.abs(cell.row - p1Pieces[gSelectedPieceIndex].row);
-    var columnDiff = Math.abs(cell.column - p1Pieces[gSelectedPieceIndex].column);
-    if ((rowDiff <= 1) &&
-	(columnDiff <= 1)) {
-	/* we already know that this click was on an empty square,
-	   so that must mean this was a valid single-square move */
-	p1Pieces[gSelectedPieceIndex].row = cell.row;
-	p1Pieces[gSelectedPieceIndex].column = cell.column;
-	gMoveCount += 1;
-	gSelectedPieceIndex = -1;
-	gSelectedPieceHasMoved = false;
-	drawBoard();
-	return;
+    if(selectedTeam == null || selectedTeam == 2) { return; }
+    if(selectedTeam == 0) {
+        var rowDiff = (cell.row - p1Pieces[gSelectedPieceIndex].row);
+        var columnDiff = (cell.column - p1Pieces[gSelectedPieceIndex].column);
+        // if ((rowDiff == -1) &&
+        // (columnDiff == 1 || columnDiff == -1)) {
+        //     /* we already know that this click was on an empty square,
+        //        so that must mean this was a valid single-square move */
+        //     p1Pieces[gSelectedPieceIndex].row = cell.row;
+        //     p1Pieces[gSelectedPieceIndex].column = cell.column;
+        //     gMoveCount += 1;
+        //     gSelectedPieceIndex = -1;
+        //     gSelectedPieceHasMoved = false;
+        //     drawBoard();
+        //     return;
+        // }
+        if (((rowDiff == -1) && (columnDiff == 1 || columnDiff == -1))
+        && 
+        isThereAPieceBetween(p1Pieces[gSelectedPieceIndex], cell)) {
+            /* this was a valid jump */
+            if (!gSelectedPieceHasMoved) {
+                gMoveCount += 1;
+            }
+            gSelectedPieceHasMoved = true;
+            p1Pieces[gSelectedPieceIndex].row = cell.row;
+            p1Pieces[gSelectedPieceIndex].column = cell.column;
+            selectedTeam = null;
+            drawBoard();
+            return;
+        }
     }
-    if ((((rowDiff == 2) && (columnDiff == 0)) ||
-	 ((rowDiff == 0) && (columnDiff == 2)) ||
-	 ((rowDiff == 2) && (columnDiff == 2))) && 
-	isThereAPieceBetween(p1Pieces[gSelectedPieceIndex], cell)) {
-	/* this was a valid jump */
-	if (!gSelectedPieceHasMoved) {
-	    gMoveCount += 1;
-	}
-	gSelectedPieceHasMoved = true;
-	p1Pieces[gSelectedPieceIndex].row = cell.row;
-	p1Pieces[gSelectedPieceIndex].column = cell.column;
-	drawBoard();
-	return;
+    if(selectedTeam == 1) {
+        var rowDiff = (cell.row - p2Pieces[gSelectedPieceIndex].row);
+        var columnDiff = (cell.column - p2Pieces[gSelectedPieceIndex].column);
+        //Douglas, not needed since we only need to check for diagonal movement along with a jump
+        // if ((rowDiff == 1) &&
+        // (columnDiff == 1 || columnDiff == -1)) {
+        //     /* we already know that this click was on an empty square,
+        //        so that must mean this was a valid single-square move */
+        //     p2Pieces[gSelectedPieceIndex].row = cell.row;
+        //     p2Pieces[gSelectedPieceIndex].column = cell.column;
+        //     gMoveCount += 1;
+        //     gSelectedPieceIndex = -1;
+        //     gSelectedPieceHasMoved = false;
+        //     drawBoard();
+        //     return;
+        // }
+        if (((rowDiff == 1) && (columnDiff == 1 || columnDiff == -1))
+        && 
+        isThereAPieceBetween(p2Pieces[gSelectedPieceIndex], cell)) {
+            /* this was a valid jump */
+            if (!gSelectedPieceHasMoved) {
+                gMoveCount += 1;
+            }
+            gSelectedPieceHasMoved = true;
+            p2Pieces[gSelectedPieceIndex].row = cell.row;
+            p2Pieces[gSelectedPieceIndex].column = cell.column;
+            selectedTeam = null;
+            drawBoard();
+            return;
+        }
     }
+    //resetting the selected team
+    selectedTeam = null;
     gSelectedPieceIndex = -1;
     gSelectedPieceHasMoved = false;
     drawBoard();
 }
 
-function clickOnPiece(pieceIndex,team) {
+function clickOnPiece(pieceIndex, team) {
     if (gSelectedPieceIndex == pieceIndex) { return; }
     if(team == 0) {
         p1SelectedPieceIndex = pieceIndex;
@@ -173,6 +213,7 @@ function isTheGameOver() {
     //     }
     // }
 
+    //Douglas, need to subtract from *numPieces after each hop
     if(p1NumPieces!=0) {
         return false;
     }
@@ -215,36 +256,25 @@ function drawBoard() {
     // }
 
     for (var i = 0; i < 12; i++) {
-       // drawP1Piece(p1Pieces[i], i == p1SelectedPieceIndex);
-       drawP1Piece(p1Pieces[i], i == gSelectedPieceIndex, 0);
+       // drawP1Piece(p1Pieces[i], i == gSelectedPieceIndex);
+       drawP1Piece(p1Pieces[i], i == p1SelectedPieceIndex, 0);
+       // drawP1Piece(p1Pieces[i], selectedTeam, 0);
     }
+    //reset p1SelectedPieceIndex;
+    p1SelectedPieceIndex = null;
 
     for (var i = 0; i < 12; i++) {
-       // drawP2Piece(p2Pieces[i], i == p2SelectedPieceIndex);
-       drawP2Piece(p2Pieces[i], i == gSelectedPieceIndex, 1);
+       // drawP2Piece(p2Pieces[i], i == gSelectedPieceIndex);
+       drawP2Piece(p2Pieces[i], i == p2SelectedPieceIndex, 1);
+       //drawP2Piece(p2Pieces[i], selectedTeam, 1);
     }
+    //reset p2SelectedPieceIndex;
+    p2SelectedPieceIndex = null;
 
     gMoveCountElem.innerHTML = gMoveCount;
 
     saveGameState();
 }
-
-// function drawPiece(p, selected) {
-//     var column = p.column;
-//     var row = p.row;
-//     var x = (column * kPieceWidth) + (kPieceWidth/2);
-//     var y = (row * kPieceHeight) + (kPieceHeight/2);
-//     var radius = (kPieceWidth/2) - (kPieceWidth/10);
-//     gDrawingContext.beginPath();
-//     gDrawingContext.arc(x, y, radius, 0, Math.PI*2, false);
-//     gDrawingContext.closePath();
-//     gDrawingContext.strokeStyle = "rgb(0,0,0)";
-//     gDrawingContext.stroke();
-//     if (selected) {
-// 	   gDrawingContext.fillStyle = "rgb(150,150,150)";
-// 	   gDrawingContext.fill();
-//     }
-// }
 
 function drawP1Piece(p,selected,team) {
     var column = p.column;
@@ -296,20 +326,6 @@ if (typeof resumeGame != "function") {
 }
 
 function newGame() {
-    // gPieces = [new Cell(kBoardHeight - 3, 0),
-	   //     new Cell(kBoardHeight - 2, 0),
-	   //     new Cell(kBoardHeight - 1, 0),
-	   //     new Cell(kBoardHeight - 3, 1),
-	   //     new Cell(kBoardHeight - 2, 1),
-	   //     new Cell(kBoardHeight - 1, 1),
-	   //     new Cell(kBoardHeight - 3, 2),
-	   //     new Cell(kBoardHeight - 2, 2),
-	   //     new Cell(kBoardHeight - 1, 2)];
-
-       // gPieces = [new Cell(3, 3),
-       //     new Cell(3, 4),
-       //     new Cell(4, 3),
-       //     new Cell(4, 4)];
 
     p1Pieces = [new Cell(0,1,0),
                 new Cell(0,3,0),
@@ -371,7 +387,7 @@ function initGame(canvasElement, moveCountElement) {
     gCanvasElement = canvasElement;
     gCanvasElement.width = kPixelWidth;
     gCanvasElement.height = kPixelHeight;
-    gCanvasElement.addEventListener("click", halmaOnClick, false);
+    gCanvasElement.addEventListener("click", chipOnClick, false);
     gMoveCountElem = moveCountElement;
     gDrawingContext = gCanvasElement.getContext("2d");
     if (!resumeGame()) {
