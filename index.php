@@ -155,7 +155,7 @@
 
         /*Style goes at bottom so the background is applied */
         #checkers_canvas {
-            background-image:url('img/checkerboard.jpg');
+            /*background-image:url('img/checkerboard.jpg');*/
             background-size: cover;
             margin: auto auto;
             border-style: solid;
@@ -163,7 +163,7 @@
         }
 
         body {
-            background-image:url("img/background.jpg");
+            /*background-image:url("img/background.jpg");*/
             background-size: 100%;
         }
 
