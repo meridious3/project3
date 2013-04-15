@@ -350,6 +350,7 @@ function supportsLocalStorage() {
 function saveGameState() {
     if (!supportsLocalStorage()) { return false; }
         localStorage["board.game.in.progress"] = gGameInProgress;
+        localStorage.setItem('isSet', true);
     for (var i = 0; i < p1NumPieces; i++) {
        localStorage["board.p1Piece." + i + ".row"] = p1Pieces[i].row;
        localStorage["board.p1Piece." + i + ".column"] = p1Pieces[i].column;
@@ -370,6 +371,7 @@ function resumeGame() {
     if (!supportsLocalStorage()) { return false; }
         gGameInProgress = (localStorage["board.game.in.progress"] == "true");
     if (!gGameInProgress) { return false; }
+        // gGameInProgress = (localStorage["board.game.in.progress"] == "true");
         //p1Pieces = new Array(kNumPieces/2);
         p1Pieces = new Array(p1NumPieces);
         //p2Pieces = new Array(kNumPieces/2);
@@ -468,12 +470,20 @@ function endGame() {
     gSelectedPieceIndex = -1;
     p1SelectedIndex = -1;
     p2SelectedIndex = -1;
-    gGameInProgress = false;
+    if(gGameInProgress==true) {
+        // localStorage.clear();
+        gGameInProgress = (localStorage["board.game.in.progress"] == "false");
+        gGameInProgress = false;
+        drawBoard();
+    }
     if(p1NumPieces==0) {
         alert("Player 2 has won!");
     }
-    if(p2NumPieces==0) {
+    else if(p2NumPieces==0) {
         alert("Player 1 has won!");
+    }
+    else {
+        alert("It was a draw!");
     }
 }
 

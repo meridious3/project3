@@ -464,12 +464,21 @@ function endGame() {
     gSelectedPieceIndex = -1;
     p1SelectedPieceIndex = -1;
     p2SelectedPieceIndex = -1;
-    gGameInProgress = false;
+    // gGameInProgress = false;
+    if(gGameInProgress==true) {
+        // localStorage.clear();
+        gGameInProgress = (localStorage["board.game.in.progress"] == "false");
+        gGameInProgress = false;
+        drawBoard();
+    }
     if(p1NumPieces==0) {
         alert("Player 2 has won!");
     }
-    if(p2NumPieces==0) {
+    else if(p2NumPieces==0) {
         alert("Player 1 has won!");
+    }
+    else {
+        alert("The game was a draw!");
     }
 }
 

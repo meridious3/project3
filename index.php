@@ -106,10 +106,11 @@
         <br />
         <h1>Ye Olde English Draughts</h1>
         <!-- <p id="moves">Moves: <span id="movecount"></span></p> -->
+        <button id="endGame" onclick="endGame()">End Game</button>
         <div id="border" >
            <script>initGame(null,document.getElementById('movecount'));</script>
         </div>
-        <!-- <div id="stats">
+        <div id="stats">
         <?php
 
         if($user_id) {
@@ -143,19 +144,17 @@
           print 'Please <a href="' . $login_url . '">login.</a>';
         }    
         ?>            
-        </div> -->
+        </div>
     </body>
   <style>
-  #border {
-            width:  400px;
-                        
-            margin: 0px auto;
-
-        }
+      #border {
+                width:  400px;           
+                margin: 0px auto;
+            }
 
         /*Style goes at bottom so the background is applied */
         #checkers_canvas {
-            /*background-image:url('img/checkerboard.jpg');*/
+            background-image:url('img/checkerboard.jpg');
             background-size: cover;
             margin: auto auto;
             border-style: solid;
@@ -163,7 +162,7 @@
         }
 
         body {
-            /*background-image:url("img/background.jpg");*/
+            background-image:url("img/background.jpg");
             background-size: 100%;
         }
 
@@ -171,20 +170,6 @@
             font-family: "Palatino";
             font-size: 48px;
             color: white;
-        }
-
-        #stats {
-            
-            background-color: gray;
-            border-radius: 10px;
-            min-width: 200px;
-            min-height: 400px;
-            width: 200px;
-            height: 400px;
-            float: right;
-            position: absolute;
-            top: 150px;            
-            right: 130px;
         }
         </style>
 </html>

@@ -18,3 +18,21 @@ body {
 	background-image:url('');
 	background-size:cover;
 }
+
+#stats {
+    
+    background-color: gray;
+    border-radius: 10px;
+    min-width: 200px;
+    min-height: 400px;
+    /*width: 200px;*/
+    /*height: 400px;*/
+    float: right;
+    /*position: absolute;*/
+    /*top: 150px;            */
+    /*right: 130px;*/
+}
+
+#endGame {
+	clear:both;
+}
