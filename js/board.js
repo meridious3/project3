@@ -1,3 +1,5 @@
+var gameId;
+
 var kBoardWidth = 8;
 var kBoardHeight= 8;
 var kPieceWidth = 50;
@@ -11,10 +13,15 @@ var gPattern;
 
 var playerTurn;
 
+//no longer needed
 var gPieces;
+
 var p1Pieces;
 var p2Pieces;
+
+// no longer needed
 var gNumPieces;
+
 var p1NumPieces = 12;
 var p2NumPieces = 12;
 //Showing which team is selected
@@ -38,10 +45,11 @@ var gGameInProgress;
 var pTestRow;
 var pTestCol;
 
-function Cell(row, column, team) {
+function Cell(row, column, team, king) {
     this.row = row;
     this.column = column;
     this.team = team;
+    this.king = king;
 }
 
 function getCursorPosition(e) {
@@ -191,42 +199,16 @@ function clickOnPiece(pieceIndex, team) {
     drawBoard();
 }
 
-// function isThereAPieceBetween(cell1, cell2) {
-//     /* note: assumes cell1 and cell2 are 2 squares away
-//        either vertically, horizontally, or diagonally */
-//     var rowBetween = (cell1.row + cell2.row) / 2;
-//     var columnBetween = (cell1.column + cell2.column) / 2;
-//     for (var i = 0; i < p1NumPieces; i++) {
-//         if ((p1Pieces[i].row == rowBetween) &&
-//             (p1Pieces[i].column == columnBetween)) {
-//             return true;
-//         }
-//     }
-//     for (var i = 0; i < p2NumPieces; i++) {
-//         if ((p2Pieces[i].row == rowBetween) &&
-//             (p2Pieces[i].column == columnBetween)) {
-//             return true;
-//         }
-//     }
-//     //return false;
-//     return true;
-// }
-
-
-
 function pieceHop(cell, rowDiff, columnDiff, selectedTeam) {
+
+    /*TODO build in this for kings*/
+
     if(selectedTeam == 0) {
         for(i=0; i<p1NumPieces; i++) {
             if(p1Pieces[i].row == (cell.row-1) && (p1Pieces[i].column == (cell.column - (columnDiff/2)))) {
                 return false;
             }
         }
-        // if(!(p1Pieces[(cell.row+(rowDiff/2)),(cell.column+(columnDiff/2)),(0)])) {
-        //     //p2Pieces.splice(i,1);
-        //     // p2NumPieces -= 1;
-        //     // kNumPieces -= 1;
-        //     return true;
-        // }
     }
     if(selectedTeam == 1) {
         for(i=0; i<p2NumPieces; i++) {
@@ -234,27 +216,15 @@ function pieceHop(cell, rowDiff, columnDiff, selectedTeam) {
                 return false;
             }
         }
-        // if(!(p2Pieces[(cell.row+(rowDiff/2)),(cell.column+(columnDiff/2)),(1)])) {
-        //     //p1Pieces.splice(i,1);
-        //     // p1NumPieces -= 1;
-        //     // kNumPieces -= 1;
-        //     //p1Pieces[i].row = cell.row;
-        //     //p1Pieces[i].column = cell.column;
-        //     return true;
-        // }
     }
     return true;
 }
 
 function isTheGameOver() {
 
-    if(p1NumPieces!=0) {
+    if(p1NumPieces!=0 || p2NumPieces!=0) {
         return false;
     }
-    if(p2NumPieces!=0) {
-        return false;
-    }
-
     return true;
 }
 
@@ -361,94 +331,126 @@ if (typeof resumeGame != "function") {
     }
 }
 
+function updateRemote(){
+    /* Serializes the gameboard */
+    var out1 = "";
+    for (var i = 0; i < p1NumPieces; i++) {
+        out1 = out1 + tostring(p1Pieces[i][0]) + "," + tostring(p1Pieces[i][1]) + "," + tostring(p1Pieces[i][2]) + "," + tostring(p1Pieces[i][3]) + "\n";
+    };
+
+    var out2 = "";
+    for (var i = 0; i < p2NumPieces; i++) {
+        out2 = out2 + tostring(p2Pieces[i][0]) + "," + tostring(p2Pieces[i][1]) + "," + tostring(p2Pieces[i][2]) + "," + tostring(p2Pieces[i][3]) + "\n";
+    };    
+
+    var out = out1 + "|" + out2;
+
+    /* send board to server to update the DB */
+    /* put stuff in gameId and gameState */
+    /* AJAX off */
+
+    //do ajax stuff to update.php
+    $.ajax({
+        type: "POST",
+        url: "update.php",
+        data: { gameId: gameId, gameState: out },
+        success: function(){
+            alert("Successfully sent data. ");
+        },
+        error: function(){
+            alert("The ajax thing failed. ");
+        }
+    });
+
+}
+
+function loadBoard() {
+    /* get the string from AJAX php thing*/
+    // DO AJAX STUFF from getboard.php
+    $.ajax({                                      
+      url: 'getboard.php',                  //the script to call to get data          
+      data: "",                        //you can insert url argumnets here to pass to api.php
+                                       //for example "id=5&parent=6"
+      dataType: 'json',                //data format      
+      success: function(data)          //on recieve of reply
+      {
+        var result = data[0];           //get name
+      } 
+      error: function(data) {
+        alert("The ajax to load the board failed.");
+      }
+    });
+
+    /*parse the string into */  
+
+    var stuff = result.split("|");   // Split on pipe  
+    var p1string = stuff[0];
+    var p2string = stuff[1];
+
+    /* p(1/2)stuff now is string[], with each index being an entire cell element */
+    var p1stuff = p1string.split("\n");
+    var p2stuff = p2string.split("\n");
+
+    var oldp1Pieces = p1Pieces;
+    var oldp2Pieces = p2Pieces;
+
+    var newp1Pieces;
+    for (var i = 0; i <p1stuff.length; i++) {
+        var tmp = p1stuff[i].split(",")
+        var x = parseInt(tmp[0]);
+        var y = parseInt(tmp[1]);
+        var team = parseInt(tmp[2]);
+        var king = parseInt(tmp[3]);
+        newp1Pieces[i] = new Cell(x,y,team,king);
+    };
+    
+    var newp2Pieces;
+    for (var i = 0; i <p2stuff.length; i++) {
+        var tmp = p2stuff[i].split(",")
+        var x = parseInt(tmp[0]);
+        var y = parseInt(tmp[1]);
+        var team = parseInt(tmp[2]);
+        var king = parseInt(tmp[3]);
+        newp2Pieces[i] = new Cell(x,y,team,king);
+    };
+
+
+    /* do some verifications and see that at max 2 pieces changed, so no cheating */
+
+
+    p1Pieces = newp1Pieces;
+    p2Pieces = newp2Pieces;
+}
+
 function newGame() {
-
-
-    p1Pieces = [new Cell(0,1,0),
-                new Cell(0,3,0),
-                new Cell(0,5,0),
-                new Cell(0,7,0),
-                new Cell(1,0,0),
-                new Cell(1,2,0),
-                new Cell(1,4,0),
-                new Cell(1,6,0),
-                new Cell(2,1,0),
-                new Cell(2,3,0),
-                new Cell(2,5,0),
-                new Cell(2,7,0)
+    p1Pieces = [new Cell(0,1,0,0),
+                new Cell(0,3,0,0),
+                new Cell(0,5,0,0),
+                new Cell(0,7,0,0),
+                new Cell(1,0,0,0),
+                new Cell(1,2,0,0),
+                new Cell(1,4,0,0),
+                new Cell(1,6,0,0),
+                new Cell(2,1,0,0),
+                new Cell(2,3,0,0),
+                new Cell(2,5,0,0),
+                new Cell(2,7,0,0)
                 ];
 
-    p2Pieces = [new Cell(5,0,1),
-                new Cell(5,2,1),
-                new Cell(5,4,1),
-                new Cell(5,6,1),
-                new Cell(6,1,1),
-                new Cell(6,3,1),
-                new Cell(6,5,1),
-                new Cell(6,7,1),
-                new Cell(7,0,1),
-                new Cell(7,2,1),
-                new Cell(7,4,1),
-                new Cell(7,6,1)
+    p2Pieces = [new Cell(5,0,1,0),
+                new Cell(5,2,1,0),
+                new Cell(5,4,1,0),
+                new Cell(5,6,1,0),
+                new Cell(6,1,1,0),
+                new Cell(6,3,1,0),
+                new Cell(6,5,1,0),
+                new Cell(6,7,1,0),
+                new Cell(7,0,1,0),
+                new Cell(7,2,1,0),
+                new Cell(7,4,1,0),
+                new Cell(7,6,1,0)
                 ];
 
-    // p1Pieces = [new Cell('row':0,'column':1,'team':0),
-    //             new Cell('row':0,'column':3,'team':0),
-    //             new Cell('row':0,'column':5,'team':0),
-    //             new Cell('row':0,'column':7,'team':0),
-    //             new Cell('row':1,'column':0,'team':0),
-    //             new Cell('row':1,'column':2,'team':0),
-    //             new Cell('row':1,'column':4,'team':0),
-    //             new Cell('row':1,'column':6,'team':0),
-    //             new Cell('row':2,'column':1,'team':0),
-    //             new Cell('row':2,'column':3,'team':0),
-    //             new Cell('row':2,'column':5,'team':0),
-    //             new Cell('row':2,'column':7,'team':0)
-    //             ];
-
-    // p2Pieces = [new Cell('row':5,'column':0,'team':1),
-    //             new Cell('row':5,'column':2,'team':1),
-    //             new Cell('row':5,'column':4,'team':1),
-    //             new Cell('row':5,'column':6,'team':1),
-    //             new Cell('row':6,'column':1,'team':1),
-    //             new Cell('row':6,'column':3,'team':1),
-    //             new Cell('row':6,'column':5,'team':1),
-    //             new Cell('row':6,'column':7,'team':1),
-    //             new Cell('row':7,'column':0,'team':1),
-    //             new Cell('row':7,'column':2,'team':1),
-    //             new Cell('row':7,'column':4,'team':1),
-    //             new Cell('row':7,'column':6,'team':1)
-    //             ];
-
-    // p1Pieces = [new Cell(row:0,column:1,team:0),
-    //             new Cell(row:0,column:3,team:0),
-    //             new Cell(row:0,column:5,team:0),
-    //             new Cell(row:0,column:7,team:0),
-    //             new Cell(row:1,column:0,team:0),
-    //             new Cell(row:1,column:2,team:0),
-    //             new Cell(row:1,column:4,team:0),
-    //             new Cell(row:1,column:6,team:0),
-    //             new Cell(row:2,column:1,team:0),
-    //             new Cell(row:2,column:3,team:0),
-    //             new Cell(row:2,column:5,team:0),
-    //             new Cell(row:2,column:7,team:0)
-    //             ];
-
-    // p2Pieces = [new Cell(row:5,column:0,team:1),
-    //             new Cell(row:5,column:2,team:1),
-    //             new Cell(row:5,column:4,team:1),
-    //             new Cell(row:5,column:6,team:1),
-    //             new Cell(row:6,column:1,team:1),
-    //             new Cell(row:6,column:3,team:1),
-    //             new Cell(row:6,column:5,team:1),
-    //             new Cell(row:6,column:7,team:1),
-    //             new Cell(row:7,column:0,team:1),
-    //             new Cell(row:7,column:2,team:1),
-    //             new Cell(row:7,column:4,team:1),
-    //             new Cell(row:7,column:6,team:1)
-    //             ];
-
-    //gNumPieces = gPieces.length;
     p1NumPieces = p1Pieces.length;
     p2NumPieces = p2Pieces.length;
     gSelectedPieceIndex = -1;
@@ -461,6 +463,10 @@ function newGame() {
 }
 
 function endGame() {
+
+    /* Remove this game's information from the database */
+
+
     gSelectedPieceIndex = -1;
     p1SelectedPieceIndex = -1;
     p2SelectedPieceIndex = -1;
@@ -499,6 +505,7 @@ function initGame(canvasElement, moveCountElement) {
     gMoveCountElem = moveCountElement;
     gDrawingContext = gCanvasElement.getContext("2d");
     if (!resumeGame()) {
-    newGame();
+        newGame();
+        /* Update the DB with a new game id and state. IDK where to do this really */
     }
 }

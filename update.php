@@ -24,7 +24,7 @@
 
 	if(isset($info)){
 		/* Confirm state */
-		/* MAke sure only 1 piece moved, etc... */
+		/* Make sure only 1 piece moved, etc... */
 
 		/* update db with state */ 
 		$up = " UPDATE games
@@ -34,5 +34,5 @@
 		if(!$result = $db->query($up){
 			die('There was an error running the query [' . $db->error . ']');
 		}
-	}
+s	}
 ?>

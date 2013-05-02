@@ -23,9 +23,7 @@
 	}
 	$info = mysqli_fetch_array($result);
 	if(isset($info)){
-		/*Send back the gameboard to the player */
-
-		/* IDK HOW TO DO THIS... */
-
+		/*convert varchar to something that i can make a JS array out of... */
+		return $info;
 	}
 ?>
