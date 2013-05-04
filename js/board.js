@@ -1,4 +1,11 @@
-var gameId;
+var gameId = 1;
+
+/* 
+    I have the PHP that populates the page generate this var.
+    playerID
+    myTurn
+*/
+
 
 var kBoardWidth = 8;
 var kBoardHeight= 8;
@@ -11,10 +18,11 @@ var gCanvasElement;
 var gDrawingContext;
 var gPattern;
 
+/*  */
 var playerTurn;
 
 //no longer needed
-var gPieces;
+/*var gPieces;*/
 
 var p1Pieces;
 var p2Pieces;
@@ -217,6 +225,7 @@ function pieceHop(cell, rowDiff, columnDiff, selectedTeam) {
             }
         }
     }
+    alert(playerID);
     return true;
 }
 
@@ -331,6 +340,10 @@ if (typeof resumeGame != "function") {
     }
 }
 
+function deleteGame(){
+
+}
+
 function updateRemote(){
     /* Serializes the gameboard */
     var out1 = "";
@@ -361,7 +374,6 @@ function updateRemote(){
             alert("The ajax thing failed. ");
         }
     });
-
 }
 
 function loadBoard() {
@@ -388,17 +400,17 @@ function loadBoard() {
     var p2string = stuff[1];
 
     /* p(1/2)stuff now is string[], with each index being an entire cell element */
-    var p1stuff = p1string.split("\n");
-    var p2stuff = p2string.split("\n");
+    var p1stuff = p1string.split(":");
+    var p2stuff = p2string.split(":");
 
     var oldp1Pieces = p1Pieces;
     var oldp2Pieces = p2Pieces;
 
     var newp1Pieces;
     for (var i = 0; i <p1stuff.length; i++) {
-        var tmp = p1stuff[i].split(",")
-        var x = parseInt(tmp[0]);
-        var y = parseInt(tmp[1]);
+        var tmp = p1stuff[i].split("i")
+        var x    = parseInt(tmp[0]);
+        var y    = parseInt(tmp[1]);
         var team = parseInt(tmp[2]);
         var king = parseInt(tmp[3]);
         newp1Pieces[i] = new Cell(x,y,team,king);
@@ -406,9 +418,9 @@ function loadBoard() {
     
     var newp2Pieces;
     for (var i = 0; i <p2stuff.length; i++) {
-        var tmp = p2stuff[i].split(",")
-        var x = parseInt(tmp[0]);
-        var y = parseInt(tmp[1]);
+        var tmp = p2stuff[i].split("i")
+        var x    = parseInt(tmp[0]);
+        var y    = parseInt(tmp[1]);
         var team = parseInt(tmp[2]);
         var king = parseInt(tmp[3]);
         newp2Pieces[i] = new Cell(x,y,team,king);
@@ -423,6 +435,7 @@ function loadBoard() {
 }
 
 function newGame() {
+
     p1Pieces = [new Cell(0,1,0,0),
                 new Cell(0,3,0,0),
                 new Cell(0,5,0,0),
@@ -448,24 +461,29 @@ function newGame() {
                 new Cell(7,0,1,0),
                 new Cell(7,2,1,0),
                 new Cell(7,4,1,0),
-                new Cell(7,6,1,0)
-                ];
+                new Cell(7,6,1,0)];
+
 
     p1NumPieces = p1Pieces.length;
     p2NumPieces = p2Pieces.length;
+    
     gSelectedPieceIndex = -1;
     p1SelectedPieceIndex = -1;
     p2SelectedPieceIndex = -1;
+    
     gSelectedPieceHasMoved = false;
+    
     gMoveCount = 0;
+    
     gGameInProgress = true;
+    
     drawBoard();
 }
 
 function endGame() {
 
     /* Remove this game's information from the database */
-
+    
 
     gSelectedPieceIndex = -1;
     p1SelectedPieceIndex = -1;
@@ -508,4 +526,5 @@ function initGame(canvasElement, moveCountElement) {
         newGame();
         /* Update the DB with a new game id and state. IDK where to do this really */
     }
+
 }

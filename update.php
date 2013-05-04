@@ -34,5 +34,5 @@
 		if(!$result = $db->query($up){
 			die('There was an error running the query [' . $db->error . ']');
 		}
-s	}
+	}
 ?>

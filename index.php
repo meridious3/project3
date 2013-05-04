@@ -121,12 +121,29 @@
 
             $friends = $facebook->api('/me/friends','GET');
             $me = $facebook->api('/me');
+
+            echo "<script> var playerID = ".$me['id']."</script>";
+            
             echo "<h3>Welcome ".$me['first_name']." :) </h3>" ;
-
-            // CHANGE ME BETWEEN HOSTS
-
             echo "<a href="."./logout.php".">Log out</a>";
-            //echo "<button onClick='".$facebook."logout(function(response))'</button>";
+
+            echo '<div id="friendslist">';
+            foreach($friends['data'] as $f){
+                $img     = 'https://graph.facebook.com/'.$f['id'].'/picture';
+
+                // change this to init a game between the two ppl
+                $play = './create.php?player1='.$me['id'].'&player2='.$f['id'];
+
+                $email = $f;
+                    
+                echo '<li>';
+                echo '<img src="'.$img.'">';
+                echo '<a href="'.$play.'">'.'Play '.$f['name'].'</a>';
+                echo '</li>';   
+            }
+            echo '</div>';
+            /* give JS the persons fb profile id */
+            
 
         } catch(FacebookApiException $e) {
             // If the user is logged out, you can have a 
@@ -147,10 +164,10 @@
         </div>
     </body>
   <style>
-      #border {
-                width:  400px;           
-                margin: 0px auto;
-            }
+        #border {
+            width:  400px;           
+            margin: 0px auto;
+        }
 
         /*Style goes at bottom so the background is applied */
         #checkers_canvas {
@@ -159,6 +176,11 @@
             margin: auto auto;
             border-style: solid;
             border-width: 10px;
+        }
+
+        #friendslist {
+            width: 190px;
+            height: auto;
         }
 
         body {

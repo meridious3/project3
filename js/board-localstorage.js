@@ -188,26 +188,6 @@ function clickOnPiece(pieceIndex, team) {
     drawBoard();
 }
 
-// function isThereAPieceBetween(cell1, cell2) {
-//     /* note: assumes cell1 and cell2 are 2 squares away
-//        either vertically, horizontally, or diagonally */
-//     var rowBetween = (cell1.row + cell2.row) / 2;
-//     var columnBetween = (cell1.column + cell2.column) / 2;
-//     for (var i = 0; i < p1NumPieces; i++) {
-//      if ((p1Pieces[i].row == rowBetween) &&
-//          (p1Pieces[i].column == columnBetween)) {
-//          return true;
-//      }
-//     }
-//     for (var i = 0; i < p2NumPieces; i++) {
-//         if ((p2Pieces[i].row == rowBetween) &&
-//             (p2Pieces[i].column == columnBetween)) {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
-
 function pieceHop(cell, rowDiff, columnDiff, selectedTeam) {
     if(selectedTeam == 0) {
         for(i=0; i<p1NumPieces; i++) {
@@ -215,12 +195,7 @@ function pieceHop(cell, rowDiff, columnDiff, selectedTeam) {
                 return false;
             }
         }
-        // if(!(p1Pieces[(cell.row+(rowDiff/2)),(cell.column+(columnDiff/2)),(0)])) {
-        //     //p2Pieces.splice(i,1);
-        //     // p2NumPieces -= 1;
-        //     // kNumPieces -= 1;
-        //     return true;
-        // }
+
     }
     if(selectedTeam == 1) {
         for(i=0; i<p2NumPieces; i++) {
@@ -348,6 +323,7 @@ function supportsLocalStorage() {
 }
 
 function saveGameState() {
+    updateRemote();
     if (!supportsLocalStorage()) { return false; }
         localStorage["board.game.in.progress"] = gGameInProgress;
         localStorage.setItem('isSet', true);
@@ -370,12 +346,15 @@ function saveGameState() {
 function resumeGame() {
     if (!supportsLocalStorage()) { return false; }
         gGameInProgress = (localStorage["board.game.in.progress"] == "true");
+    
     if (!gGameInProgress) { return false; }
+    
+
         // gGameInProgress = (localStorage["board.game.in.progress"] == "true");
         //p1Pieces = new Array(kNumPieces/2);
-        p1Pieces = new Array(p1NumPieces);
+    p1Pieces = new Array(p1NumPieces);
         //p2Pieces = new Array(kNumPieces/2);
-        p2Pieces = new Array(p2NumPieces);
+    p2Pieces = new Array(p2NumPieces);
     for (var i = 0; i < p1NumPieces; i++) {
        var row = parseInt(localStorage["board.p1Piece." + i + ".row"]);
        var column = parseInt(localStorage["board.p1Piece." + i + ".column"]);
@@ -388,6 +367,9 @@ function resumeGame() {
        var team = parseInt(localStorage["board.p2Piece." + i + ".team"]);
        p2Pieces[i] = new Cell(row, column, team);
     }
+    
+    loadBoard();
+
     gNumPieces = kNumPieces;
     gSelectedPieceIndex = parseInt(localStorage["board.selectedpiece"]);
     gSelectedPieceHasMoved = localStorage["board.selectedpiecehasmoved"] == "true";
@@ -398,61 +380,34 @@ function resumeGame() {
 
 function newGame() {
 
-       p1Pieces = [new Cell(0,1,0),
-                    new Cell(0,3,0),
-                    new Cell(0,5,0),
-                    new Cell(0,7,0),
-                    new Cell(1,0,0),
-                    new Cell(1,2,0),
-                    new Cell(1,4,0),
-                    new Cell(1,6,0),
-                    new Cell(2,1,0),
-                    new Cell(2,3,0),
-                    new Cell(2,5,0),
-                    new Cell(2,7,0)
+       p1Pieces = [ new Cell(0,1,0,0),
+                    new Cell(0,3,0,0),
+                    new Cell(0,5,0,0),
+                    new Cell(0,7,0,0),
+                    new Cell(1,0,0,0),
+                    new Cell(1,2,0,0),
+                    new Cell(1,4,0,0),
+                    new Cell(1,6,0,0),
+                    new Cell(2,1,0,0),
+                    new Cell(2,3,0,0),
+                    new Cell(2,5,0,0),
+                    new Cell(2,7,0,0)
                     ];
 
-        p2Pieces = [new Cell(5,0,1),
-                    new Cell(5,2,1),
-                    new Cell(5,4,1),
-                    new Cell(5,6,1),
-                    new Cell(6,1,1),
-                    new Cell(6,3,1),
-                    new Cell(6,5,1),
-                    new Cell(6,7,1),
-                    new Cell(7,0,1),
-                    new Cell(7,2,1),
-                    new Cell(7,4,1),
-                    new Cell(7,6,1)
+        p2Pieces = [new Cell(5,0,1,0),
+                    new Cell(5,2,1,0),
+                    new Cell(5,4,1,0),
+                    new Cell(5,6,1,0),
+                    new Cell(6,1,1,0),
+                    new Cell(6,3,1,0),
+                    new Cell(6,5,1,0),
+                    new Cell(6,7,1,0),
+                    new Cell(7,0,1,0),
+                    new Cell(7,2,1,0),
+                    new Cell(7,4,1,0),
+                    new Cell(7,6,1,0)
                     ];
 
-    // p1Pieces = [new Cell('row':0,'column':1,'team':0),
-    //             new Cell('row':0,'column':3,'team':0),
-    //             new Cell('row':0,'column':5,'team':0),
-    //             new Cell('row':0,'column':7,'team':0),
-    //             new Cell('row':1,'column':0,'team':0),
-    //             new Cell('row':1,'column':2,'team':0),
-    //             new Cell('row':1,'column':4,'team':0),
-    //             new Cell('row':1,'column':6,'team':0),
-    //             new Cell('row':2,'column':1,'team':0),
-    //             new Cell('row':2,'column':3,'team':0),
-    //             new Cell('row':2,'column':5,'team':0),
-    //             new Cell('row':2,'column':7,'team':0)
-    //             ];
-
-    // p2Pieces = [new Cell('row':5,'column':0,'team':1),
-    //             new Cell('row':5,'column':2,'team':1),
-    //             new Cell('row':5,'column':4,'team':1),
-    //             new Cell('row':5,'column':6,'team':1),
-    //             new Cell('row':6,'column':1,'team':1),
-    //             new Cell('row':6,'column':3,'team':1),
-    //             new Cell('row':6,'column':5,'team':1),
-    //             new Cell('row':6,'column':7,'team':1),
-    //             new Cell('row':7,'column':0,'team':1),
-    //             new Cell('row':7,'column':2,'team':1),
-    //             new Cell('row':7,'column':4,'team':1),
-    //             new Cell('row':7,'column':6,'team':1)
-    //             ];
     
     //gNumPieces = gPieces.length;
     p1NumPieces = p1Pieces.length;
@@ -485,6 +440,7 @@ function endGame() {
     else {
         alert("It was a draw!");
     }
+    deleteGame();
 }
 
 function initGame(canvasElement, moveCountElement) {
