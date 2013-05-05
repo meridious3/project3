@@ -1,4 +1,3 @@
-
 <!-- Initial help from http://diveintohtml5.info/canvas.html, but the majority has changed -->
 <?
   // Remember to copy files from the SDK's src/ directory to a
@@ -106,7 +105,7 @@
         <br />
         <h1>Ye Olde English Draughts</h1>
         <!-- <p id="moves">Moves: <span id="movecount"></span></p> -->
-        <button id="endGame" onclick="endGame()">End Game</button>
+        
         <div id="border" >
            <script>initGame(null,document.getElementById('movecount'));</script>
         </div>
@@ -122,27 +121,49 @@
             $friends = $facebook->api('/me/friends','GET');
             $me = $facebook->api('/me');
 
+             /* give JS the persons fb profile id */
             echo "<script> var playerID = ".$me['id']."</script>";
             
             echo "<h3>Welcome ".$me['first_name']." :) </h3>" ;
             echo "<a href="."./logout.php".">Log out</a>";
 
-            echo '<div id="friendslist">';
-            foreach($friends['data'] as $f){
-                $img     = 'https://graph.facebook.com/'.$f['id'].'/picture';
+            /* Check to see if there are any games the person is playing */
+            $db=mysqli_connect("localhost","root","12345","gameStates");
 
-                // change this to init a game between the two ppl
-                $play = './create.php?player1='.$me['id'].'&player2='.$f['id'];
-
-                $email = $f;
-                    
-                echo '<li>';
-                echo '<img src="'.$img.'">';
-                echo '<a href="'.$play.'">'.'Play '.$f['name'].'</a>';
-                echo '</li>';   
+            // Check connection
+            if (mysqli_connect_errno($db)) {
+              echo "Failed to connect to MySQL: " . mysqli_connect_error();
             }
-            echo '</div>';
-            /* give JS the persons fb profile id */
+            $pid = $me['id'];
+            $check = "SELECT * FROM games WHERE ( p1id = $pid OR p2id = $pid)";
+            if(!$result = $db->query($check) ){
+                die('There was an error running the query [' . $db->error . ']');
+            }
+            /*fetch result so we know who the other player is*/
+            $info = mysqli_fetch_array($result);
+            $p1id = $info['p1id'];
+            $p2id = $info['p2id'];
+
+            if( mysqli_num_rows($result) == 0 /* No game in progress*/ ) {
+                echo '<div id="friendslist">';
+                foreach($friends['data'] as $f){
+                    $img = 'https://graph.facebook.com/'.$f['id'].'/picture';
+
+                    // change this to init a game between the two ppl
+                    $play = './create.php?player1='.$me['id'].'&player2='.$f['id'];
+
+                    $email = $f;             
+                    echo '<li>';
+                    echo '<img src="'.$img.'">';
+                    echo '<a href="'.$play.'">'.'Play '.$f['name'].'</a>';
+                    echo '</li>';   
+                }
+                echo '</div>';
+            } else if (mysqli_num_rows($result) == 1) {
+                echo "<br /> Game in progress against ".$p1id;
+            } else {
+                echo "Multiple DB game entries. This is bad";
+            }
             
 
         } catch(FacebookApiException $e) {
@@ -160,7 +181,10 @@
           $login_url = $facebook->getLoginUrl();
           print 'Please <a href="' . $login_url . '">login.</a>';
         }    
-        ?>            
+        ?>   
+        <br />
+        <br />
+        <button id="endGame" onclick="endGame()" type="submit" formaction="endgame.php?<?php echo 'player1='.'$p1id'.'&player2=$p2id'?>">End Game</button>         
         </div>
     </body>
   <style>

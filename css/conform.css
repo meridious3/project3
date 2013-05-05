@@ -28,9 +28,9 @@ body {
     /*width: 200px;*/
     /*height: 400px;*/
     float: right;
-    /*position: absolute;*/
-    /*top: 150px;            */
-    /*right: 130px;*/
+    position: absolute;
+    top: 150px;            
+    right: 130px;
 }
 
 #endGame {
