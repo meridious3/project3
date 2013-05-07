@@ -9,13 +9,15 @@
 	  echo "Failed to connect to MySQL: " . mysqli_connect_error();
 	}
 
-	$gameid = mysql_real_escape_string($_POST["gameId"]);
 	/* get game state */
+	$p1 = mysql_real_escape_string($_POST["player1"]);
+	$p2 = mysql_real_escape_string($_POST["player2"]);
 	$gameState = mysql_real_escape_string($_POST["gameState"]);
+	$movecount = mysql_real_escape_string($_POST["movecount"]);
 
 
 
-	$check = "SELECT * FROM users WHERE gid = $gameid";
+	$check = "SELECT * FROM games WHERE p1id = $p1 AND p2id = $p2 OR p1id = $p1 AND p2id = $p1";
 	if(!$result = $db->query($check)){
 		die('There was an error running the query [' . $db->error . ']');
 	}
@@ -29,7 +31,7 @@
 		/* update db with state */ 
 		$up = " UPDATE games
 				SET state = $gameState
-				WHERE gid = $gameid ";
+				WHERE p1id = $p1 AND p2id = $p2 OR p1id = $p1 AND p2id = $p1 ";
 
 		if(!$result = $db->query($up){
 			die('There was an error running the query [' . $db->error . ']');

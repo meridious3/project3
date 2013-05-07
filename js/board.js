@@ -3,6 +3,7 @@ var gameId = 1;
 /* 
     I have the PHP that populates the page generate this var.
     playerID
+    challengerID
     myTurn
 */
 
@@ -82,21 +83,26 @@ function getCursorPosition(e) {
 }
 
 function chipOnClick(e) {
-    var cell = getCursorPosition(e);
-    for (var i = 0; i < p1NumPieces; i++) {
-        if ((p1Pieces[i].row == cell.row) && 
-            (p1Pieces[i].column == cell.column)) {
-            selectedTeam = 0;
-            clickOnPiece(i,selectedTeam);
-            return;
+    if(gMoveCount%2==0) {
+        var cell = getCursorPosition(e);
+        for (var i = 0; i < p1NumPieces; i++) {
+            if ((p1Pieces[i].row == cell.row) && 
+                (p1Pieces[i].column == cell.column)) {
+                selectedTeam = 0;
+                clickOnPiece(i,selectedTeam);
+                return;
+            }
         }
     }
-    for (var i = 0; i < p2NumPieces; i++) {
-        if ((p2Pieces[i].row == cell.row) && 
-            (p2Pieces[i].column == cell.column)) {
-            selectedTeam = 1;
-            clickOnPiece(i,selectedTeam);
-            return;
+    else if(gMoveCount%2==1) {
+        var cell = getCursorPosition(e);
+        for (var i = 0; i < p2NumPieces; i++) {
+            if ((p2Pieces[i].row == cell.row) && 
+                (p2Pieces[i].column == cell.column)) {
+                selectedTeam = 1;
+                clickOnPiece(i,selectedTeam);
+                return;
+            }
         }
     }
     clickOnEmptyCell(cell, selectedTeam);
@@ -142,6 +148,7 @@ function clickOnEmptyCell(cell, selectedTeam) {
                     kNumPieces -= 1;
                 }
             }
+            
             selectedTeam = null;
             drawBoard();
             return;
@@ -225,7 +232,9 @@ function pieceHop(cell, rowDiff, columnDiff, selectedTeam) {
             }
         }
     }
-    alert(playerID);
+
+    // 
+
     return true;
 }
 
@@ -241,6 +250,8 @@ function drawBoard() {
     if (gGameInProgress && isTheGameOver()) {
        endGame();
     }
+
+    // loadBoard();
 
     gDrawingContext.clearRect(0, 0, kPixelWidth, kPixelHeight);
 
@@ -287,7 +298,7 @@ function drawBoard() {
     //gSelectedPieceIndex = -1;
 
     gMoveCountElem.innerHTML = gMoveCount;
-
+    
     saveGameState();
 }
 
@@ -340,10 +351,6 @@ if (typeof resumeGame != "function") {
     }
 }
 
-function deleteGame(){
-
-}
-
 function updateRemote(){
     /* Serializes the gameboard */
     var out1 = "";
@@ -360,18 +367,17 @@ function updateRemote(){
 
     /* send board to server to update the DB */
     /* put stuff in gameId and gameState */
-    /* AJAX off */
 
     //do ajax stuff to update.php
     $.ajax({
         type: "POST",
         url: "update.php",
-        data: { gameId: gameId, gameState: out },
+        data: { gameId: gameId, gameState: out, movecount: gMoveCount },
         success: function(){
-            alert("Successfully sent data. ");
+            console.log("Successfully sent data. ");
         },
         error: function(){
-            alert("The ajax thing failed. ");
+            console.log("No transfer...");
         }
     });
 }
@@ -387,12 +393,13 @@ function loadBoard() {
       success: function(data)          //on recieve of reply
       {
         var result = data[0];           //get name
+      },
+      error: function(){
+        console.log("No transfer...");
       } 
-      error: function(data) {
-        alert("The ajax to load the board failed.");
-      }
     });
 
+    console.log("Loading board");
     /*parse the string into */  
 
     var stuff = result.split("|");   // Split on pipe  
@@ -476,12 +483,16 @@ function newGame() {
     gMoveCount = 0;
     
     gGameInProgress = true;
-    
-    drawBoard();
+
+    //creating a game is handled by links in the stat menu
+
+    drawBoard();   
 }
 
 function endGame() {
 
+    alert("challengerID: "+challengerID);
+    alert("PlayerID: "+playerID);
     /* Remove this game's information from the database */
     
 
@@ -495,6 +506,21 @@ function endGame() {
         gGameInProgress = false;
         drawBoard();
     }
+
+
+    $.ajax({
+        type: "POST",
+        url: "endgame.php",
+        data: { player1: playerID, player2: challengerID},
+        success: function(){
+            console.log("Successfully sent data. ");
+        },
+        error: function(){
+            console.log("No transfer...");
+        }
+    });
+
+
     if(p1NumPieces==0) {
         alert("Player 2 has won!");
     }
@@ -504,6 +530,8 @@ function endGame() {
     else {
         alert("The game was a draw!");
     }
+
+
 }
 
 function initGame(canvasElement, moveCountElement) {

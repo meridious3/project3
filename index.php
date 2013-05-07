@@ -1,114 +1,85 @@
 <!-- Initial help from http://diveintohtml5.info/canvas.html, but the majority has changed -->
 <?
-  // Remember to copy files from the SDK's src/ directory to a
-  // directory in your application on the server, such as php-sdk/
-  require 'facebook-php-sdk-master/src/facebook.php';
+    error_reporting(E_ALL);
+    $gameInProgress = false;
+    // Remember to copy files from the SDK's src/ directory to a
+    // directory in your application on the server, such as php-sdk/
+    require 'facebook-php-sdk-master/src/facebook.php';
 
     // CHANGE ME BETWEEN HOSTS
 
-  $config = array(
-    'appId'  => '560482677326050',
-    'secret' => '2f5d4d0449a68fd43034b93a4a5c1004'
-  );
+    $config = array(
+        'appId'  => '560482677326050',
+        'secret' => '2f5d4d0449a68fd43034b93a4a5c1004'
+    );
 
-  $facebook = new Facebook($config);
-  $user_id = $facebook->getUser();
+    $facebook = new Facebook($config);
+    $user_id = $facebook->getUser();
   
-  if(isset($_REQUEST["action"]))
-    $action = $_REQUEST["action"];
-  else
-    $action = "none";
+    if(isset($_REQUEST["action"]))
+        $action = $_REQUEST["action"];
+    else
+        $action = "none";
+    if(isset($user_id)){
+        $db = mysqli_connect("localhost","root","12345","gameStates");
+
+        // Check connection
+        if (mysqli_connect_errno($db)) {
+          echo "Failed to connect to MySQL: " . mysqli_connect_error();
+        }
+        
+        try { 
+            $friends = $facebook->api('/me/friends','GET');
+            $me = $facebook->api('/'.$user_id); ;
+
+            $pid = $me['id'];
+            $check = "SELECT * FROM games WHERE ( p1id = $pid OR p2id = $pid)";
+            if(!$result = $db->query($check) ){
+                die('There was an error running the query [' . $db->error . ']');
+            }
+
+            /*fetch result so we know who the other player is*/
+            $gameInProgress = mysqli_num_rows($result) != 0;
+
+            if(mysqli_num_rows($result) == 1){
+                $info = mysqli_fetch_array($result);
+
+                $p1id = $info['p1id'];
+                $p2id = $info['p2id'];
+                echo "<script> var challengerID = ".$p2id."; var playerID = ".$p1id.";</script>";
+            }
+        } catch (FacebookApiException $e){
+            $login_url = $facebook->getLoginUrl(); 
+            print('User, but no token. Please <a href="' . $login_url . '">login.</a>');
+            error_log($e->getType());
+            error_log($e->getMessage());
+        }
+    } else {
+      // No user, print a link for the user to login
+      $login_url = $facebook->getLoginUrl();
+      print 'Please <a href="' . $login_url . '">login.</a>';
+    }   
 ?>
 
 
 <html>
-<script>
-(function main() {
-    // Create enabled event
-    function fireEnabledEvent() {
-        // If gli exists, then we are already present and shouldn't do anything
-        if (!window.gli) {
-            setTimeout(function () {
-                var enabledEvent = document.createEvent("Event");
-                enabledEvent.initEvent("WebGLEnabledEvent", true, true);
-                document.dispatchEvent(enabledEvent);
-            }, 0);
-        } else {
-            //console.log("WebGL Inspector already embedded on the page - disabling extension");
-        }
-    };
-
-    // Grab the path root from the extension
-    document.addEventListener("WebGLInspectorReadyEvent", function (e) {
-        var pathElement = document.getElementById("__webglpathroot");
-        if (window["gliloader"]) {
-            gliloader.pathRoot = pathElement.innerText;
-        } else {
-            // TODO: more?
-            window.gliCssUrl = pathElement.innerText + "gli.all.css";
-        }
-    }, false);
-
-    // Rewrite getContext to snoop for webgl
-    var originalGetContext = HTMLCanvasElement.prototype.getContext;
-    if (!HTMLCanvasElement.prototype.getContextRaw) {
-        HTMLCanvasElement.prototype.getContextRaw = originalGetContext;
-    }
-    HTMLCanvasElement.prototype.getContext = function () {
-        var ignoreCanvas = this.internalInspectorSurface;
-        if (ignoreCanvas) {
-            return originalGetContext.apply(this, arguments);
-        }
-
-        var result = originalGetContext.apply(this, arguments);
-        if (result == null) {
-            return null;
-        }
-
-        var contextNames = ["moz-webgl", "webkit-3d", "experimental-webgl", "webgl", "3d"];
-        var requestingWebGL = contextNames.indexOf(arguments[0]) != -1;
-        if (requestingWebGL) {
-            // Page is requesting a WebGL context!
-            fireEnabledEvent(this);
-
-            // If we are injected, inspect this context
-            if (window.gli) {
-                if (gli.host.inspectContext) {
-                    // TODO: pull options from extension
-                    result = gli.host.inspectContext(this, result);
-                    // NOTE: execute in a timeout so that if the dom is not yet
-                    // loaded this won't error out.
-                    window.setTimeout(function() {
-                        var hostUI = new gli.host.HostUI(result);
-                        result.hostUI = hostUI; // just so we can access it later for debugging
-                    }, 0);
-                }
-            }
-        }
-
-        return result;
-    };
-})();
-</script>
-
 <head>
     <link rel="stylesheet" type="text/css" href="css/conform.css"/>
-    <script src="js/board-localstorage.js"></script>
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="js/board.js"></script>
-
+    <script src="js/board-localstorage.js"></script>
 </head>
     <body>  
-
-
-
-
         <br />
         <h1>Ye Olde English Draughts</h1>
         <!-- <p id="moves">Moves: <span id="movecount"></span></p> -->
-        
-        <div id="border" >
-           <script>initGame(null,document.getElementById('movecount'));</script>
-        </div>
+        <?php
+            if($gameInProgress){
+                echo '<div id="border" >';            
+                echo "<script>initGame(null,document.getElementById('movecount'));</script>";
+                echo "</div>";
+            }
+        ?>
         <div id="stats">
         <?php
 
@@ -119,7 +90,7 @@
           try {
 
             $friends = $facebook->api('/me/friends','GET');
-            $me = $facebook->api('/me');
+            $me = $facebook->api('/'.$user_id); 
 
              /* give JS the persons fb profile id */
             echo "<script> var playerID = ".$me['id']."</script>";
@@ -134,6 +105,7 @@
             if (mysqli_connect_errno($db)) {
               echo "Failed to connect to MySQL: " . mysqli_connect_error();
             }
+
             $pid = $me['id'];
             $check = "SELECT * FROM games WHERE ( p1id = $pid OR p2id = $pid)";
             if(!$result = $db->query($check) ){
@@ -141,6 +113,7 @@
             }
             /*fetch result so we know who the other player is*/
             $info = mysqli_fetch_array($result);
+
             $p1id = $info['p1id'];
             $p2id = $info['p2id'];
 
@@ -160,11 +133,11 @@
                 }
                 echo '</div>';
             } else if (mysqli_num_rows($result) == 1) {
-                echo "<br /> Game in progress against ".$p1id;
+                echo "<br /> Game in progress: <br />".$p1id." against ".$p2id;
+                echo "<script> var challengerID = ".$p2id."; var playerID = ".$p1id.";</script>";
             } else {
-                echo "Multiple DB game entries. This is bad";
+                echo "Multiple DB game entries. This is bad...";
             }
-            
 
         } catch(FacebookApiException $e) {
             // If the user is logged out, you can have a 
@@ -184,7 +157,9 @@
         ?>   
         <br />
         <br />
-        <button id="endGame" onclick="endGame()" type="submit" formaction="endgame.php?<?php echo 'player1='.'$p1id'.'&player2=$p2id'?>">End Game</button>         
+        
+        <button id="endGame" onclick="endGame(); document.location.reload(true);"> End Game </button>         
+
         </div>
     </body>
   <style>
