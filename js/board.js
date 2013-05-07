@@ -510,6 +510,10 @@ function initGame(canvasElement, moveCountElement) {
 }
 
 (function poll() {
+    
+    // IDK WHERE THE FUCK TO PUT THIS.
+    updateRemote();
+
     setTimeout(function() {
         $.ajax({      
          type: 'POST',                                
@@ -583,6 +587,4 @@ function initGame(canvasElement, moveCountElement) {
         });
     },5000);
 
-    // IDK WHERE THE FUCK TO PUT THIS.
-    updateRemote();
 })();

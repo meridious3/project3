@@ -38,7 +38,7 @@ var gGameInProgress;
 function updateRemote(){
     /* Serializes the gameboard */
     var out1 = "";
-    if(typeof(p1Pieces) != undefined && p2Pieces != null){
+    if(typeof(p1Pieces) != undefined && p1Pieces != null){
         
         for (var i = 0; i < p1Pieces.length-1; i++) {
             out1 = out1 + String(p1Pieces[i]['row']) + "," + String(p1Pieces[i]['column']) + "," + String(p1Pieces[i]['team']) + "," + String(p1Pieces[i]['king']) + ":";
@@ -69,7 +69,7 @@ function updateRemote(){
             url: "update.php",
             data: { player1: playerID, player2: challengerID, gameState: out, movecount: gMoveCount },
             success: function(){
-                console.log("Successfully sent data. ");
+                console.log("Sent Data to server: ");
             },
             error: function(){
                 console.log("No transfer.");
