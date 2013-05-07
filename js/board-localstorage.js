@@ -38,34 +38,45 @@ var gGameInProgress;
 function updateRemote(){
     /* Serializes the gameboard */
     var out1 = "";
-    for (var i = 0; i < p1NumPieces; i++) {
-        out1 = out1 + p1Pieces[i][0] + "," + p1Pieces[i][1] + "," + p1Pieces[i][2] + "," + p1Pieces[i][3] + "\n";
-    };
+    if(typeof(p1Pieces) != undefined && p2Pieces != null){
+        
+        for (var i = 0; i < p1Pieces.length-1; i++) {
+            out1 = out1 + String(p1Pieces[i]['row']) + "," + String(p1Pieces[i]['column']) + "," + String(p1Pieces[i]['team']) + "," + String(p1Pieces[i]['king']) + ":";
+        };
+        out1 = out1 + String(p1Pieces[p1Pieces.length-1]['row']) + "," + String(p1Pieces[p1Pieces.length-1]['column']) + "," + String(p1Pieces[p1Pieces.length-1]['team']) + "," + String(p1Pieces[p1Pieces.length-1]['king']);
+    }
 
     var out2 = "";
-    for (var i = 0; i < p2NumPieces; i++) {
-        out2 = out2 + p2Pieces[i][0] + "," + p2Pieces[i][1] + "," + p2Pieces[i][2] + "," + p2Pieces[i][3] + "\n";
-    };    
-
+    if(typeof(p2Pieces) != undefined && p2Pieces != null){
+        for (var i = 0; i < p2Pieces.length-1; i++) {
+            out2 = out2 + String(p2Pieces[i]['row']) + "," + String(p2Pieces[i]['column']) + "," + String(p2Pieces[i]['team']) + "," + String(p2Pieces[i]['king']) + ":";
+        }; 
+        out2 = out2 + String(p2Pieces[p2Pieces.length-1]['row']) + "," + String(p2Pieces[p2Pieces.length-1]['column']) + "," + String(p2Pieces[p2Pieces.length-1]['team']) + "," + String(p2Pieces[p2Pieces.length-1]['king']);   
+    }
     var out = out1 + "|" + out2;
 
     /* send board to server to update the DB */
     /* put stuff in gameId and gameState */
 
     //do ajax stuff to update.php
-    $.ajax({
-        type: "POST",
-        url: "update.php",
-        data: { player1: playerID, player2: challengerID, gameState: out, movecount: gMoveCount },
-        success: function(){
-            console.log("Successfully sent data. ");
-        },
-        error: function(){
-            console.log("No transfer...");
-        }
-    });
+    // console.log(playerID);
+    // console.log(challengerID);
+    // console.log(out);
+    // console.log(gMoveCount);
+    if(out != "|"){
+        $.ajax({
+            type: "POST",
+            url: "update.php",
+            data: { player1: playerID, player2: challengerID, gameState: out, movecount: gMoveCount },
+            success: function(){
+                console.log("Successfully sent data. ");
+            },
+            error: function(){
+                console.log("No transfer.");
+            }
+        });
+    }
 }
-
 function endGame() {
 
     //alert("challengerID: "+challengerID);
@@ -79,7 +90,7 @@ function endGame() {
     // gGameInProgress = false;
     if(gGameInProgress==true) {
         // localStorage.clear();
-        gGameInProgress = (localStorage["board.game.in.progress"] == "false");
+        // gGameInProgress = (localStorage["board.game.in.progress"] == "false");
         gGameInProgress = false;
         drawBoard();
     }
@@ -89,6 +100,8 @@ function endGame() {
         type: "POST",
         url: "endgame.php",
         data: { player1: playerID, player2: challengerID},
+
+
         success: function(){
             console.log("Successfully sent data. ");
         },
@@ -110,75 +123,17 @@ function endGame() {
 
 
 }
-
-
-function loadBoard() {
-    /* get the string from AJAX php thing*/
-    // DO AJAX STUFF from getboard.php
-    $.ajax({                                      
-      url: 'getboard.php',                  //the script to call to get data          
-      data: {},                        //you can insert url argumnets here to pass to api.php
-                                       //for example "id=5&parent=6"
-      dataType: 'json',                //data format      
-      success: function(data)          //on recieve of reply
-      {
-        var result = data[0];           //get name
-      }, 
-      error: function(data) {
-        console.log("The ajax to load the board failed.");
-      }
-    });
-    
-    console.log("Loading board");
-    /*parse the string into */  
-
-    var stuff = result.split("|");   // Split on pipe  
-    var p1string = stuff[0];
-    var p2string = stuff[1];
-
-    /* p(1/2)stuff now is string[], with each index being an entire cell element */
-    var p1stuff = p1string.split(":");
-    var p2stuff = p2string.split(":");
-
-    var oldp1Pieces = p1Pieces;
-    var oldp2Pieces = p2Pieces;
-
-    var newp1Pieces;
-    for (var i = 0; i <p1stuff.length; i++) {
-        var tmp = p1stuff[i].split("i")
-        var x    = parseInt(tmp[0]);
-        var y    = parseInt(tmp[1]);
-        var team = parseInt(tmp[2]);
-        var king = parseInt(tmp[3]);
-        newp1Pieces[i] = new Cell(x,y,team,king);
-    };
-    
-    var newp2Pieces;
-    for (var i = 0; i <p2stuff.length; i++) {
-        var tmp = p2stuff[i].split("i")
-        var x    = parseInt(tmp[0]);
-        var y    = parseInt(tmp[1]);
-        var team = parseInt(tmp[2]);
-        var king = parseInt(tmp[3]);
-        newp2Pieces[i] = new Cell(x,y,team,king);
-    };
-
-
-    /* do some verifications and see that at max 2 pieces changed, so no cheating */
-
-
-    p1Pieces = newp1Pieces;
-    p2Pieces = newp2Pieces;
-}
-
 /* End section Blake Wrote*/
 
 
-function Cell(row, column, team) {
+
+function Cell(row, column, team, king) {
     this.row = row;
     this.column = column;
     this.team = team;
+    this.king = king;
 }
+
 
 function getCursorPosition(e) {
     /* returns Cell with .row and .column properties */
@@ -485,45 +440,44 @@ function saveGameState() {
     }
     localStorage["board.selectedpiece"] = gSelectedPieceIndex;
     localStorage["board.selectedpiecehasmoved"] = gSelectedPieceHasMoved;*/
-    localStorage["board.movecount"] = gMoveCount;
-    updateRemote();
-    return true;
+    // localStorage["board.movecount"] = gMoveCount;
+    return false;
 }
 
-function resumeGame() {
-    if (!supportsLocalStorage()) { return false; }
-        gGameInProgress = (localStorage["board.game.in.progress"] == "true");
+// function resumeGame() {
+//     if (!supportsLocalStorage()) { return false; }
+//         gGameInProgress = (localStorage["board.game.in.progress"] == "true");
     
-    if (!gGameInProgress) { return false; }
+//     if (!gGameInProgress) { return false; }
     
 
-        // gGameInProgress = (localStorage["board.game.in.progress"] == "true");
-        //p1Pieces = new Array(kNumPieces/2);
-    p1Pieces = new Array(p1NumPieces);
-        //p2Pieces = new Array(kNumPieces/2);
-    p2Pieces = new Array(p2NumPieces);
-    for (var i = 0; i < p1NumPieces; i++) {
-       var row = parseInt(localStorage["board.p1Piece." + i + ".row"]);
-       var column = parseInt(localStorage["board.p1Piece." + i + ".column"]);
-       var team = parseInt(localStorage["board.p1Piece." + i + ".team"]);
-       p1Pieces[i] = new Cell(row, column, team);
-    }
-    for (var i = 0; i < p2NumPieces; i++) {
-       var row = parseInt(localStorage["board.p2Piece." + i + ".row"]);
-       var column = parseInt(localStorage["board.p2Piece." + i + ".column"]);
-       var team = parseInt(localStorage["board.p2Piece." + i + ".team"]);
-       p2Pieces[i] = new Cell(row, column, team);
-    }
+//         // gGameInProgress = (localStorage["board.game.in.progress"] == "true");
+//         //p1Pieces = new Array(kNumPieces/2);
+//     p1Pieces = new Array(p1NumPieces);
+//         //p2Pieces = new Array(kNumPieces/2);
+//     p2Pieces = new Array(p2NumPieces);
+//     for (var i = 0; i < p1NumPieces; i++) {
+//        var row = parseInt(localStorage["board.p1Piece." + i + ".row"]);
+//        var column = parseInt(localStorage["board.p1Piece." + i + ".column"]);
+//        var team = parseInt(localStorage["board.p1Piece." + i + ".team"]);
+//        p1Pieces[i] = new Cell(row, column, team);
+//     }
+//     for (var i = 0; i < p2NumPieces; i++) {
+//        var row = parseInt(localStorage["board.p2Piece." + i + ".row"]);
+//        var column = parseInt(localStorage["board.p2Piece." + i + ".column"]);
+//        var team = parseInt(localStorage["board.p2Piece." + i + ".team"]);
+//        p2Pieces[i] = new Cell(row, column, team);
+//     }
     
-    loadBoard();
+//     loadBoard();
 
-    gNumPieces = kNumPieces;
-    gSelectedPieceIndex = parseInt(localStorage["board.selectedpiece"]);
-    gSelectedPieceHasMoved = localStorage["board.selectedpiecehasmoved"] == "true";
-    gMoveCount = parseInt(localStorage["board.movecount"]);
-    drawBoard();
-    return true;
-}
+//     gNumPieces = kNumPieces;
+//     gSelectedPieceIndex = parseInt(localStorage["board.selectedpiece"]);
+//     gSelectedPieceHasMoved = localStorage["board.selectedpiecehasmoved"] == "true";
+//     gMoveCount = parseInt(localStorage["board.movecount"]);
+//     drawBoard();
+//     return true;
+// }
 
 function newGame() {
 

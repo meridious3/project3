@@ -11,13 +11,14 @@
 
 	// $gameid = mysql_real_escape_string($_POST["gameId"]);
 	/* Players facebook id */
-	$pid = mysql_real_escape_string($_GET["pid"]);
+	$pid = mysql_real_escape_string($_POST["p1"]);
+	$pid2 = mysql_real_escape_string($_POST["p2"]);
 
 
 
 	/* Get the game you are currently playing */
 	/* FUTURE PROBLEM: This DB format / SQL could limit a player to 1 game at a time */
-	$check = "SELECT * FROM games WHERE ( p1id = $pid OR p2id = $pid)";
+	$check = "SELECT * FROM games WHERE ( p1id = $pid AND p2id = $pid2) OR ( p2id = $pid AND p1id = $pid2) ";
 	if(!$result = $db->query($check)){
 		die('There was an error running the query [' . $db->error . ']');
 	}
@@ -27,7 +28,7 @@
 /*		echo "<pre>";
 		print_r($info);
 		echo "</pre>";*/
-
+		echo $info['state'];
 		return $info['state'];
 	}
 ?>

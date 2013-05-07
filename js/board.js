@@ -298,8 +298,8 @@ function drawBoard() {
     //gSelectedPieceIndex = -1;
 
     gMoveCountElem.innerHTML = gMoveCount;
+
     
-    saveGameState();
 }
 
 function drawP1Piece(p,selected,team) {
@@ -354,91 +354,44 @@ if (typeof resumeGame != "function") {
 function updateRemote(){
     /* Serializes the gameboard */
     var out1 = "";
-    for (var i = 0; i < p1NumPieces; i++) {
-        out1 = out1 + tostring(p1Pieces[i][0]) + "," + tostring(p1Pieces[i][1]) + "," + tostring(p1Pieces[i][2]) + "," + tostring(p1Pieces[i][3]) + "\n";
-    };
+    if(typeof(p1Pieces) != undefined && p2Pieces != null){
+        
+        for (var i = 0; i < p1Pieces.length-1; i++) {
+            out1 = out1 + String(p1Pieces[i]['row']) + "," + String(p1Pieces[i]['column']) + "," + String(p1Pieces[i]['team']) + "," + String(p1Pieces[i]['king']) + ":";
+        };
+        out1 = out1 + String(p1Pieces[p1Pieces.length-1]['row']) + "," + String(p1Pieces[p1Pieces.length-1]['column']) + "," + String(p1Pieces[p1Pieces.length-1]['team']) + "," + String(p1Pieces[p1Pieces.length-1]['king']);
+    }
 
     var out2 = "";
-    for (var i = 0; i < p2NumPieces; i++) {
-        out2 = out2 + tostring(p2Pieces[i][0]) + "," + tostring(p2Pieces[i][1]) + "," + tostring(p2Pieces[i][2]) + "," + tostring(p2Pieces[i][3]) + "\n";
-    };    
-
+    if(typeof(p2Pieces) != undefined && p2Pieces != null){
+        for (var i = 0; i < p2Pieces.length-1; i++) {
+            out2 = out2 + String(p2Pieces[i]['row']) + "," + String(p2Pieces[i]['column']) + "," + String(p2Pieces[i]['team']) + "," + String(p2Pieces[i]['king']) + ":";
+        }; 
+        out2 = out2 + String(p2Pieces[p2Pieces.length-1]['row']) + "," + String(p2Pieces[p2Pieces.length-1]['column']) + "," + String(p2Pieces[p2Pieces.length-1]['team']) + "," + String(p2Pieces[p2Pieces.length-1]['king']);   
+    }
     var out = out1 + "|" + out2;
 
     /* send board to server to update the DB */
     /* put stuff in gameId and gameState */
 
     //do ajax stuff to update.php
-    $.ajax({
-        type: "POST",
-        url: "update.php",
-        data: { gameId: gameId, gameState: out, movecount: gMoveCount },
-        success: function(){
-            console.log("Successfully sent data. ");
-        },
-        error: function(){
-            console.log("No transfer...");
-        }
-    });
-}
-
-function loadBoard() {
-    /* get the string from AJAX php thing*/
-    // DO AJAX STUFF from getboard.php
-    $.ajax({                                      
-      url: 'getboard.php',                  //the script to call to get data          
-      data: "",                        //you can insert url argumnets here to pass to api.php
-                                       //for example "id=5&parent=6"
-      dataType: 'json',                //data format      
-      success: function(data)          //on recieve of reply
-      {
-        var result = data[0];           //get name
-      },
-      error: function(){
-        console.log("No transfer...");
-      } 
-    });
-
-    console.log("Loading board");
-    /*parse the string into */  
-
-    var stuff = result.split("|");   // Split on pipe  
-    var p1string = stuff[0];
-    var p2string = stuff[1];
-
-    /* p(1/2)stuff now is string[], with each index being an entire cell element */
-    var p1stuff = p1string.split(":");
-    var p2stuff = p2string.split(":");
-
-    var oldp1Pieces = p1Pieces;
-    var oldp2Pieces = p2Pieces;
-
-    var newp1Pieces;
-    for (var i = 0; i <p1stuff.length; i++) {
-        var tmp = p1stuff[i].split("i")
-        var x    = parseInt(tmp[0]);
-        var y    = parseInt(tmp[1]);
-        var team = parseInt(tmp[2]);
-        var king = parseInt(tmp[3]);
-        newp1Pieces[i] = new Cell(x,y,team,king);
-    };
-    
-    var newp2Pieces;
-    for (var i = 0; i <p2stuff.length; i++) {
-        var tmp = p2stuff[i].split("i")
-        var x    = parseInt(tmp[0]);
-        var y    = parseInt(tmp[1]);
-        var team = parseInt(tmp[2]);
-        var king = parseInt(tmp[3]);
-        newp2Pieces[i] = new Cell(x,y,team,king);
-    };
-
-
-    /* do some verifications and see that at max 2 pieces changed, so no cheating */
-
-
-    p1Pieces = newp1Pieces;
-    p2Pieces = newp2Pieces;
+    // console.log(playerID);
+    // console.log(challengerID);
+    // console.log(out);
+    // console.log(gMoveCount);
+    if(out != "|"){
+        $.ajax({
+            type: "POST",
+            url: "update.php",
+            data: { player1: playerID, player2: challengerID, gameState: out, movecount: gMoveCount },
+            success: function(){
+                console.log("Successfully sent data. ");
+            },
+            error: function(){
+                console.log("No transfer.");
+            }
+        });
+    }
 }
 
 function newGame() {
@@ -502,7 +455,7 @@ function endGame() {
     // gGameInProgress = false;
     if(gGameInProgress==true) {
         // localStorage.clear();
-        gGameInProgress = (localStorage["board.game.in.progress"] == "false");
+        // gGameInProgress = (localStorage["board.game.in.progress"] == "false");
         gGameInProgress = false;
         drawBoard();
     }
@@ -552,7 +505,84 @@ function initGame(canvasElement, moveCountElement) {
     gDrawingContext = gCanvasElement.getContext("2d");
     if (!resumeGame()) {
         newGame();
-        /* Update the DB with a new game id and state. IDK where to do this really */
     }
 
 }
+
+(function poll() {
+    setTimeout(function() {
+        $.ajax({      
+         type: 'POST',                                
+         url: 'getboard.php',                  //the script to call to get data          
+         data: {p1: playerID, p2: challengerID },
+
+         success: function(data)            //on recieve of reply
+         {
+            // console.log(" ajax worked!");
+            var result = data;           //get name
+
+
+            console.log("Loading board");
+            /*parse the string into */  
+
+            var stuff = result.split("|");   // Split on pipe
+
+            var p1string = stuff[0];
+            var p2string = stuff[1];
+            // console.log("1st split");
+            // console.log(p1string);
+            // console.log(p2string);
+            /* p(1/2)stuff now is string[], with each index being an entire cell element */
+            var p1stuff = p1string.split(":");
+            var p2stuff = p2string.split(":");
+
+
+
+            var oldp1Pieces = p1Pieces;
+            var oldp2Pieces = p2Pieces;
+
+            var newp1Pieces = [];
+            // console.log("2nd splits");
+            for (var i = 0; i <p1stuff.length; i++) {
+                // console.log(p1stuff[i].split(","));
+                var tmp = p1stuff[i].split(",");
+
+                // console.log(parseInt(tmp[0]));
+                // console.log(parseInt(tmp[1]));
+                // console.log(parseInt(tmp[2]));
+                // console.log(parseInt(tmp[3]));
+
+                var x    = parseInt(tmp[0]);
+                var y    = parseInt(tmp[1]);
+                var team = parseInt(tmp[2]);
+                var king = parseInt(tmp[3]);
+
+                newp1Pieces[i] = new Cell(x,y,team,king);
+            };
+            
+            var newp2Pieces = [];
+            for (var i = 0; i <p2stuff.length; i++) {
+                var tmp = p2stuff[i].split(",");
+                var x    = parseInt(tmp[0]);
+                var y    = parseInt(tmp[1]);
+                var team = parseInt(tmp[2]);
+                var king = parseInt(tmp[3]);
+                newp2Pieces[i] = new Cell(x,y,team,king);
+            };
+
+            p1Pieces = newp1Pieces;
+            p2Pieces = newp2Pieces;
+
+
+         }, 
+         error: function(data) {
+            console.log("The ajax to load the board failed.");
+         },
+         complete: poll
+
+        });
+    },5000);
+
+    // IDK WHERE THE FUCK TO PUT THIS.
+    updateRemote();
+})();
