@@ -441,7 +441,8 @@ function saveGameState() {
     localStorage["board.selectedpiece"] = gSelectedPieceIndex;
     localStorage["board.selectedpiecehasmoved"] = gSelectedPieceHasMoved;*/
     // localStorage["board.movecount"] = gMoveCount;
-    return false;
+    //return false;
+    updateRemote();
 }
 
 // function resumeGame() {
@@ -539,7 +540,5 @@ function initGame(canvasElement, moveCountElement) {
     gCanvasElement.addEventListener("click", chipOnClick, false);
     gMoveCountElem = moveCountElement;
     gDrawingContext = gCanvasElement.getContext("2d");
-    if (!resumeGame()) {
     newGame();
-    }
 }

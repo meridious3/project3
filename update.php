@@ -18,7 +18,7 @@
 
 
 
-	$check = "SELECT * FROM games WHERE (p1id = $p1 AND p2id = $p2) OR (p1id = $p2 AND p2id = $p1)";
+	$check = "SELECT * FROM games WHERE (p1id = '$p1' AND p2id = '$p2') OR (p1id = '$p2' AND p2id = '$p1')";
 	if(!$result = $db->query($check)){
 		die('There was an error running the query 1 [' . $db->error . ']');
 	}

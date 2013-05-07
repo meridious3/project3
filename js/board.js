@@ -1,11 +1,15 @@
 var gameId = 1;
+var whichPlayerAmI = 2;
 
 /* 
     I have the PHP that populates the page generate this var.
     playerID
     challengerID
     myTurn
+
+    whichPlayerAmI
 */
+
 
 
 var kBoardWidth = 8;
@@ -503,28 +507,49 @@ function initGame(canvasElement, moveCountElement) {
     gCanvasElement.addEventListener("click", chipOnClick, false);
     gMoveCountElem = moveCountElement;
     gDrawingContext = gCanvasElement.getContext("2d");
-    if (!resumeGame()) {
-        newGame();
-    }
+    newGame();
 
 }
 
 (function poll() {
-    
-    // IDK WHERE THE FUCK TO PUT THIS.
-    updateRemote();
-
     setTimeout(function() {
+
+        $.ajax({
+            type: 'POST',
+            url: 'assign.php',
+            data: {p1: playerID, p2: challengerID },
+            // datatype: 'json',
+            success: function(data) {
+                console.log("you are player "+data);
+                var whichPlayerAmI = data;
+            },
+            error: function(data){
+                console.log("");
+            }
+        });
+
+        if(gMoveCount%2 == whichPlayerAmI){
+            updateRemote();
+        }
+        
+
+
         $.ajax({      
          type: 'POST',                                
          url: 'getboard.php',                  //the script to call to get data          
          data: {p1: playerID, p2: challengerID },
-
+         datatype: 'json',
          success: function(data)            //on recieve of reply
          {
-            // console.log(" ajax worked!");
-            var result = data;           //get name
 
+            var data = jQuery.parseJSON(data);
+
+            console.log(data.moves);
+            console.log(data.game);
+              
+
+            var result = data.game;           //get name
+            gMoveCount = Number(data.moves);
 
             console.log("Loading board");
             /*parse the string into */  
@@ -577,7 +602,6 @@ function initGame(canvasElement, moveCountElement) {
             p1Pieces = newp1Pieces;
             p2Pieces = newp2Pieces;
 
-
          }, 
          error: function(data) {
             console.log("The ajax to load the board failed.");
@@ -585,6 +609,6 @@ function initGame(canvasElement, moveCountElement) {
          complete: poll
 
         });
-    },5000);
-
+    },1000);
+    drawBoard();
 })();

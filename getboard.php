@@ -25,10 +25,8 @@
 	$info = mysqli_fetch_array($result);
 
 	if(isset($info)){
-/*		echo "<pre>";
-		print_r($info);
-		echo "</pre>";*/
-		echo $info['state'];
-		return $info['state'];
+		$arr = array('game' => $info['state'], 'moves' => $info['turn']);
+
+		echo json_encode($arr);
 	}
 ?>

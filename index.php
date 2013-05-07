@@ -33,20 +33,36 @@
             $me = $facebook->api('/'.$user_id); ;
 
             $pid = $me['id'];
-            $check = "SELECT * FROM games WHERE ( p1id = $pid OR p2id = $pid)";
+            $check = "SELECT * FROM games WHERE p1id = $pid";
+
             if(!$result = $db->query($check) ){
                 die('There was an error running the query [' . $db->error . ']');
             }
 
             /*fetch result so we know who the other player is*/
-            $gameInProgress = mysqli_num_rows($result) != 0;
+            $gameInProgress = false;
 
             if(mysqli_num_rows($result) == 1){
+                $gameInProgress = true;
                 $info = mysqli_fetch_array($result);
 
                 $p1id = $info['p1id'];
                 $p2id = $info['p2id'];
                 echo "<script> var challengerID = ".$p2id."; var playerID = ".$p1id.";</script>";
+            } else {
+                $check = "SELECT * FROM games WHERE p2id = $pid";
+                if(!$result = $db->query($check) ){
+                    die('There was an error running the query [' . $db->error . ']');
+                }
+                if(mysqli_num_rows($result) == 1){
+                    $gameInProgress = true;
+                    $info = mysqli_fetch_array($result);
+                    $p1id = $info['p1id'];
+                    $p2id = $info['p2id'];
+                    echo "<script> var challengerID = ".$p1id."; var playerID = ".$p2id.";</script>";
+                } else {
+                    echo "This isnt supposed to happen";
+                }
             }
         } catch (FacebookApiException $e){
             $login_url = $facebook->getLoginUrl(); 
@@ -93,8 +109,7 @@
             $me = $facebook->api('/'.$user_id); 
 
              /* give JS the persons fb profile id */
-            echo "<script> var playerID = ".$me['id']."</script>";
-            
+
             echo "<h3>Welcome ".$me['first_name']." :) </h3>" ;
             echo "<a href="."./logout.php".">Log out</a>";
 
@@ -113,11 +128,15 @@
             }
             /*fetch result so we know who the other player is*/
             $info = mysqli_fetch_array($result);
-
-            $p1id = $info['p1id'];
-            $p2id = $info['p2id'];
-
-            if( mysqli_num_rows($result) == 0 /* No game in progress*/ ) {
+            if($info['p1id'] == $pid) {
+                $p1id = $info['p1id'];
+                $p2id = $info['p2id'];
+            } else {
+                $p2id = $info['p1id'];
+                $p1id = $info['p2id'];
+            }
+            // echo mysqli_num_rows($result);
+            if( mysqli_num_rows($result) == 0  ) {
                 echo '<div id="friendslist">';
                 foreach($friends['data'] as $f){
                     $img = 'https://graph.facebook.com/'.$f['id'].'/picture';
@@ -133,12 +152,9 @@
                 }
                 echo '</div>';
             } else if (mysqli_num_rows($result) == 1) {
-                echo "<br /> Game in progress: <br />".$p1id." against ".$p2id;
-                echo "<script> var challengerID = ".$p2id."; var playerID = ".$p1id.";</script>";
-            } else {
-                echo "Multiple DB game entries. This is bad...";
-            }
-
+                echo "<br /> Game in progress: <br />".$facebook->api('/'.$p1id)['name']." vs ".$facebook->api('/'.$p2id)['name'];
+                // echo "<script> var challengerID = ".$p2id."; var playerID = ".$p1id.";</script>";
+            } 
         } catch(FacebookApiException $e) {
             // If the user is logged out, you can have a 
             // user ID even though the access token is invalid.

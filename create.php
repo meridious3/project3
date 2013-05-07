@@ -28,6 +28,52 @@
 			die('There was an error running the query [' . $db->error . ']');
 		}
 	}	
+
+
+	/* Post to the wall that a game is going*/
+    require 'facebook-php-sdk-master/src/facebook.php';
+
+    // CHANGE ME BETWEEN HOSTS
+
+    /* THis code is supposed to post to the persons wall*/
+
+    $config = array(
+        'appId'  => '560482677326050',
+        'secret' => '2f5d4d0449a68fd43034b93a4a5c1004'
+    );
+
+    $facebook = new Facebook($config);
+    $user = $facebook->getUser();
+
+    if(isset($_REQUEST["action"]))
+        $action = $_REQUEST["action"];
+    else
+        $action = "none";
+	if ($user) {
+	    try {
+	        // Proceed knowing you have a logged in user who's authenticated.
+	        $user_profile = $facebook->api('/me');
+            try{
+
+                $params = array(
+                	'access_token' => $facebook->getAccessToken(),
+                	'message' => "Yeah man, like checkers",
+					'name' => "OMG DRAUGHTS MAN!",
+					'description' => "I'm doing it! IM DOING IT! YYEAAAAH!",
+					'scope' => 'publish_stream'
+                );
+                $out = $facebook->api('/me/feed/','post',$params);
+                print_r($out);
+
+            }catch(Exception $e){
+            	echo "2";
+                echo $e->getMessage().'<br>';
+            }
+	    }catch(Exception $e){
+	    	echo "3";
+	        echo $e->getMessage().'<br>';
+	    }
+	}
 	/* TODO - Alert player2 via FB wall post, message, or some other communication */
 
 
